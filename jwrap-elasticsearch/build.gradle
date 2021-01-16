@@ -1,0 +1,16 @@
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+jar.enabled = true
+bootJar.enabled = false
+
+// ext {
+//     ELASTICSEARCH_VERSION = '7.10.1'
+// }
+
+dependencies {
+    // implementation "org.elasticsearch.client:elasticsearch-rest-high-level-client:$ELASTICSEARCH_VERSION"
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+}
