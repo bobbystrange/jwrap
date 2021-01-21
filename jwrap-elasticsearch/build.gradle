@@ -9,6 +9,8 @@ bootJar.enabled = false
 // }
 
 dependencies {
+    implementation "org.dreamcat:common-web:0.0.1"
+
     // implementation "org.elasticsearch.client:elasticsearch-rest-high-level-client:$ELASTICSEARCH_VERSION"
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     compileOnly 'org.springframework.boot:spring-boot-configuration-processor'

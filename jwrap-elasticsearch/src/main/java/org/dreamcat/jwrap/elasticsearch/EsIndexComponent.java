@@ -1,8 +1,11 @@
 package org.dreamcat.jwrap.elasticsearch;
 
 import java.io.IOException;
+import java.util.Map;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.dreamcat.common.util.ObjectUtil;
+import org.dreamcat.common.x.jackson.JacksonUtil;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -31,7 +34,21 @@ public class EsIndexComponent {
     private RestHighLevelClient restHighLevelClient;
 
     public boolean createIndex(String index) {
-        return createIndex(index, null, null);
+        return createIndex(index, (String) null, null);
+    }
+
+    public boolean createIndex(
+            String index,
+            @Nullable Map<String, Object> mapping,
+            @Nullable Map<String, Object> settings) {
+        String mappingJson = null, settingsJson = null;
+        if (ObjectUtil.isNotEmpty(mapping)) {
+            mappingJson = JacksonUtil.toJson(mapping);
+        }
+        if (ObjectUtil.isNotEmpty(settings)) {
+            settingsJson = JacksonUtil.toJson(settings);
+        }
+        return createIndex(index, mappingJson, settingsJson);
     }
 
     public boolean createIndex(
