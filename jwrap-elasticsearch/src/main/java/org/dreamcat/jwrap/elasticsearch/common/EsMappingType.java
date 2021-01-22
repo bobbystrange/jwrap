@@ -1,5 +1,6 @@
 package org.dreamcat.jwrap.elasticsearch.common;
 
+import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -11,7 +12,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum EsMappingType {
+public enum EsMappingType implements Supplier<String> {
     BINARY("binary"), // accepts a binary value as a Base64 encoded string.
     BOOLEAN("boolean"),
     // keyword
@@ -48,4 +49,9 @@ public enum EsMappingType {
     TEXT("text");
 
     private final String name;
+
+    @Override
+    public String get() {
+        return name;
+    }
 }

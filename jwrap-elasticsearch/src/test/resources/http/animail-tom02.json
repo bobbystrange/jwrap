@@ -1,0 +1,44 @@
+{
+  "name": "Sam",
+  "code": "tom",
+  "title": "Puss in boots",
+  "age": 5,
+  "shoe_size": 18,
+  "weight": 2.718,
+  "birthday": "2001-01-01 00:00",
+  "foot": [
+    {
+      "color": "pink",
+      "toes": [
+        {
+          "color": "red",
+          "count": 3
+        },
+        {
+          "color": "purple",
+          "count": 1
+        },
+        {
+          "color": "maroon",
+          "count": 4
+        }
+      ],
+      "mark": "water"
+    },
+    {
+      "color": "violet",
+      "toes": [
+        {
+          "color": "maroon",
+          "count": 11
+        }
+      ],
+      "mark": "fire"
+    }
+  ],
+  "color": [
+    "orange",
+    "magenta",
+    "azure"
+  ]
+}

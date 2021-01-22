@@ -1,0 +1,48 @@
+{
+  "name": "Harry",
+  "code": "harry",
+  "feed": [
+    "on"
+  ],
+  "title": "Harry the dog",
+  "age": 15,
+  "shoe_size": 46,
+  "weight": 6.18,
+  "birthday": "2000-01-01 00:00",
+  "foot": [
+    {
+      "color": "orange",
+      "toes": [
+        {
+          "color": "red",
+          "count": 10
+        }
+      ],
+      "mark": "earth"
+    },
+    {
+      "color": "green",
+      "toes": [
+        {
+          "color": "blue",
+          "count": 2
+        }
+      ],
+      "mark": "gold"
+    }
+  ],
+  "color": [
+    "white",
+    "green"
+  ],
+  "style": {
+    "bite": 2,
+    "speed": [
+      "high"
+    ],
+    "mark": {
+      "content": "WTF!",
+      "length": 1
+    }
+  }
+}

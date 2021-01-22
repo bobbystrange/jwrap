@@ -1,10 +1,8 @@
 package org.dreamcat.jwrap.elasticsearch;
 
 import java.io.IOException;
-import java.util.Map;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.dreamcat.common.util.ObjectUtil;
 import org.dreamcat.common.x.jackson.JacksonUtil;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionListener;
@@ -13,6 +11,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
@@ -39,16 +38,11 @@ public class EsIndexComponent {
 
     public boolean createIndex(
             String index,
-            @Nullable Map<String, Object> mapping,
-            @Nullable Map<String, Object> settings) {
-        String mappingJson = null, settingsJson = null;
-        if (ObjectUtil.isNotEmpty(mapping)) {
-            mappingJson = JacksonUtil.toJson(mapping);
-        }
-        if (ObjectUtil.isNotEmpty(settings)) {
-            settingsJson = JacksonUtil.toJson(settings);
-        }
-        return createIndex(index, mappingJson, settingsJson);
+            @Nullable Object mapping,
+            @Nullable Object settings) {
+        return createIndex(index,
+                mapping instanceof String ? (String) mapping : JacksonUtil.toJson(mapping),
+                settings instanceof String ? (String) settings : JacksonUtil.toJson(settings));
     }
 
     public boolean createIndex(
@@ -94,6 +88,16 @@ public class EsIndexComponent {
         try {
             return restHighLevelClient.indices()
                     .exists(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new ElasticsearchException(e);
+        }
+    }
+
+    public GetIndexResponse getIndex(String index) {
+        var request = new GetIndexRequest(index);
+        try {
+            return restHighLevelClient.indices()
+                    .get(request, RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new ElasticsearchException(e);
         }

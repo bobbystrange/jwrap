@@ -1,0 +1,43 @@
+{
+  "name": "Tom",
+  "code": "tom",
+  "title": "Tom the cat",
+  "age": 1,
+  "shoe_size": 44,
+  "weight": 3.14,
+  "birthday": "2021-01-01 00:00",
+  "foot": [
+    {
+      "color": "yellow",
+      "toes": [
+        {
+          "color": "red",
+          "count": 3
+        },
+        {
+          "color": "cyan",
+          "count": 1
+        },
+        {
+          "color": "blue",
+          "count": 4
+        }
+      ],
+      "mark": "water"
+    },
+    {
+      "color": "white",
+      "toes": [
+        {
+          "color": "brown",
+          "count": 11
+        }
+      ],
+      "mark": "water"
+    }
+  ],
+  "color": [
+    "red",
+    "black"
+  ]
+}

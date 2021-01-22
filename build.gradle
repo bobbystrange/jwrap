@@ -29,7 +29,6 @@ subprojects {
         testCompileOnly "org.projectlombok:lombok:$lombokVersion"
         testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
-        testImplementation "org.slf4j:slf4j-simple:$slf4jVersion"
         testImplementation "junit:junit:$junitVersion"
 
         implementation "org.dreamcat:common-core:0.0.1"

@@ -1,0 +1,43 @@
+{
+  "name": "Jerry",
+  "code": "jerry",
+  "title": "Jerry the mouse",
+  "age": 10,
+  "shoe_size": 12,
+  "weight": 1.414,
+  "birthday": "2020-01-01 00:00",
+  "foot": [
+    {
+      "color": "white",
+      "toes": [
+        {
+          "color": "green",
+          "count": 1
+        },
+        {
+          "color": "blue",
+          "count": 4
+        },
+        {
+          "color": "yellow",
+          "count": 2
+        }
+      ],
+      "mark": "fire"
+    },
+    {
+      "color": "white",
+      "toes": [
+        {
+          "color": "grey",
+          "count": 13
+        }
+      ],
+      "mark": "gold"
+    }
+  ],
+  "color": [
+    "black",
+    "green"
+  ]
+}

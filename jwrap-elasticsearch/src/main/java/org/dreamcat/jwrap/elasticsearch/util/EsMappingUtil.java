@@ -13,7 +13,7 @@ public final class EsMappingUtil {
     private EsMappingUtil() {
     }
 
-    private static Map<String, Object> mapping(Iterable<EsMappingValue> fields) {
+    public static Map<String, Object> mapping(Iterable<EsMappingValue> fields) {
         var value = new HashMap<String, Object>();
         var properties = new HashMap<String, Object>();
         for (var field : fields) {
@@ -23,13 +23,11 @@ public final class EsMappingUtil {
         return value;
     }
 
-    private static Map<String, Object> mapping(EsMappingValue field) {
+    public static Map<String, Object> mapping(EsMappingValue field) {
         var value = new HashMap<String, Object>();
 
         var type = field.getType();
         value.put("type", type.getName());
-        value.put("doc_values", field.isDocValues());
-        value.put("enabled", field.isEnabled());
         switch (type) {
             case CONSTANT_KEYWORD:
                 var constantKeywordValue = field.getConstantKeywordValue();
