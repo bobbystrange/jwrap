@@ -1,0 +1,92 @@
+###
+POST {{origin}}/data/query/animal
+Content-Type: application/json
+
+[
+  "tom01",
+  "jerry02"
+]
+
+###
+POST {{origin}}/data/search
+Content-Type: application/json
+
+{
+  "index": "animal",
+  "query": [
+  ],
+  "sort": [
+    {
+      "name": "foot.color.keyword",
+      "order": "DESC"
+    }
+  ],
+  "offset": 0,
+  "size": 2
+}
+
+###
+
+POST {{origin}}/data/search
+Content-Type: application/json
+
+{
+  "index": "animal",
+  "query": [
+  ],
+  "sort": [
+    {
+      "name": "name.keyword",
+      "order": "DESC"
+    }
+  ],
+  "offset": 0,
+  "size": 2
+}
+
+###
+DELETE {{origin}}/data/animal/jerry03
+
+###
+POST {{origin}}/data/animal/jerry03
+Content-Type: application/json
+
+< ./animail-jerry02.json
+
+###
+
+PUT {{origin}}/data/animal/jerry02
+Content-Type: application/json
+
+{
+  "birthday": "2000-12-12 12:12"
+}
+
+###
+
+POST {{origin}}/data/animal/jerry02
+Content-Type: application/json
+
+< ./animail-jerry02.json
+
+###
+
+POST {{origin}}/data/animal/tom02
+Content-Type: application/json
+
+< ./animail-tom02.json
+
+###
+POST {{origin}}/data/animal/jerry01
+Content-Type: application/json
+
+< ./animail-jerry01.json
+
+###
+GET {{origin}}/data/animal/tom01
+
+###
+POST {{origin}}/data/animal/tom01
+Content-Type: application/json
+
+< ./animail-tom01.json

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.dreamcat.jwrap.mybatis.dao.DDLMapper">
+
+    <update id="createTable">
+        create table if not exists `ddl_${suffix}` (
+            `id`    bigint    not null auto_increment,
+            `ctime` timestamp not null default current_timestamp,
+            `mtime` timestamp not null default current_timestamp on update current_timestamp,
+            primary key (`id`),
+            key (ctime)
+        ) engine = InnoDB
+          default charset = utf8mb4;
+    </update>
+
+    <update id="createRecordTable">
+        create table if not exists `ddl_record_${suffix}` (
+            `id`      bigint    not null auto_increment,
+            `ctime`   timestamp not null default current_timestamp,
+            `mtime`   timestamp not null default current_timestamp on update current_timestamp,
+            `ddl_id`  bigint    not null comment 'ddl_${suffix} id',
+            `content` text      null,
+            `type`    tinyint   null,
+            primary key (`id`),
+            key (ddl_id),
+            key (ctime)
+        ) engine = InnoDB
+          default charset = utf8mb4;
+    </update>
+
+</mapper>

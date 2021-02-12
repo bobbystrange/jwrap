@@ -1,0 +1,8 @@
+ext {
+    zxingVersion = '3.4.0'
+}
+
+dependencies {
+    implementation "com.google.zxing:core:$zxingVersion"
+    implementation "com.google.zxing:javase:$zxingVersion"
+}

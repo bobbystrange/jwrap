@@ -1,0 +1,9 @@
+ext {
+    // https://mvnrepository.com/artifact/org.mybatis/mybatis
+    MYBATIS_VERSION = '3.5.6'
+}
+
+dependencies {
+    implementation "org.dreamcat:common-x:$COMMON_VERSION"
+    implementation "org.mybatis:mybatis:$MYBATIS_VERSION"
+}

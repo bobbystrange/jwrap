@@ -1,23 +1,24 @@
 package org.dreamcat.jwrap.elasticsearch;
 
 import java.io.IOException;
-import javax.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.dreamcat.common.x.jackson.JacksonUtil;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
+import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
+import org.elasticsearch.common.Nullable;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.ReindexRequest;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 
 /**
  * Create by tuke on 2021/1/14
@@ -26,11 +27,10 @@ import org.springframework.stereotype.Component;
  * but this is not the limit for an index as an index can have multiple shards.
  */
 @Slf4j
-@Component
+@RequiredArgsConstructor
 public class EsIndexComponent {
 
-    @Resource
-    private RestHighLevelClient restHighLevelClient;
+    private final RestHighLevelClient restHighLevelClient;
 
     public boolean createIndex(String index) {
         return createIndex(index, (String) null, null);
@@ -47,7 +47,7 @@ public class EsIndexComponent {
 
     public boolean createIndex(
             String index, @Nullable String mapping, @Nullable String settings) {
-        var request = new CreateIndexRequest(index);
+        CreateIndexRequest request = new CreateIndexRequest(index);
         if (mapping != null) {
             request.mapping(mapping, XContentType.JSON);
         }
@@ -55,7 +55,7 @@ public class EsIndexComponent {
             request.settings(settings, XContentType.JSON);
         }
         try {
-            var response = restHighLevelClient.indices()
+            CreateIndexResponse response = restHighLevelClient.indices()
                     .create(request, RequestOptions.DEFAULT);
             if (log.isDebugEnabled()) {
                 log.debug("create index {}, result: {}", request.index(), response);
@@ -66,13 +66,15 @@ public class EsIndexComponent {
         }
     }
 
+    // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
+
     public boolean deleteIndex(String index) {
         if (!existsIndex(index)) {
             return true;
         }
-        var request = new DeleteIndexRequest(index);
+        DeleteIndexRequest request = new DeleteIndexRequest(index);
         try {
-            var response = restHighLevelClient.indices()
+            AcknowledgedResponse response = restHighLevelClient.indices()
                     .delete(request, RequestOptions.DEFAULT);
             if (log.isDebugEnabled()) {
                 log.debug("delete index {}, result: {}", index, response);
@@ -83,8 +85,10 @@ public class EsIndexComponent {
         }
     }
 
+    // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
+
     public boolean existsIndex(String index) {
-        var request = new GetIndexRequest(index);
+        GetIndexRequest request = new GetIndexRequest(index);
         try {
             return restHighLevelClient.indices()
                     .exists(request, RequestOptions.DEFAULT);
@@ -93,8 +97,10 @@ public class EsIndexComponent {
         }
     }
 
+    // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
+
     public GetIndexResponse getIndex(String index) {
-        var request = new GetIndexRequest(index);
+        GetIndexRequest request = new GetIndexRequest(index);
         try {
             return restHighLevelClient.indices()
                     .get(request, RequestOptions.DEFAULT);
@@ -103,13 +109,15 @@ public class EsIndexComponent {
         }
     }
 
+    // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
+
     public void reindex(String sourceIndex, String destIndex) {
         reindex(sourceIndex, destIndex, null);
     }
 
     public void reindex(
             String sourceIndex, String destIndex, QueryBuilder queryBuilder) {
-        var request = new ReindexRequest()
+        ReindexRequest request = new ReindexRequest()
                 .setSourceIndices(sourceIndex)
                 .setDestIndex(destIndex);
         if (queryBuilder != null) {
@@ -131,7 +139,7 @@ public class EsIndexComponent {
     public void reindexAsync(
             String sourceIndex, String destIndex, QueryBuilder queryBuilder,
             ActionListener<BulkByScrollResponse> listener) {
-        var request = new ReindexRequest()
+        ReindexRequest request = new ReindexRequest()
                 .setSourceIndices(sourceIndex)
                 .setDestIndex(destIndex);
         if (queryBuilder != null) {

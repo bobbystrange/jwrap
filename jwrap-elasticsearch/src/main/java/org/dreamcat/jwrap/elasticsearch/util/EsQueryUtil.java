@@ -3,9 +3,10 @@ package org.dreamcat.jwrap.elasticsearch.util;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+import org.apache.lucene.search.join.ScoreMode;
 import org.dreamcat.common.util.ObjectUtil;
-import org.dreamcat.jwrap.elasticsearch.common.EsQueryValue;
-import org.dreamcat.jwrap.elasticsearch.common.EsSortValue;
+import org.dreamcat.jwrap.elasticsearch.core.EsQueryValue;
+import org.dreamcat.jwrap.elasticsearch.core.EsSortValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchPhraseQueryBuilder;
 import org.elasticsearch.index.query.NestedQueryBuilder;
@@ -38,27 +39,27 @@ public final class EsQueryUtil {
     public static BoolQueryBuilder bool(
             Iterable<EsQueryValue> fields,
             BiConsumer<BoolQueryBuilder, QueryBuilder> setter) {
-        var query = new BoolQueryBuilder();
-        for (var field : fields) {
+        BoolQueryBuilder query = new BoolQueryBuilder();
+        for (EsQueryValue field : fields) {
             setter.accept(query, queryBuilder(field));
         }
         return query;
     }
 
     public static QueryBuilder queryBuilder(EsQueryValue field) {
-        var name = field.getName();
-        var value = field.getValue();
-        var exact = field.isExact();
+        String name = field.getName();
+        Object value = field.getValue();
+        boolean exact = field.isExact();
 
         // nested query
-        var children = field.getChildren();
+        List<EsQueryValue> children = field.getChildren();
         if (ObjectUtil.isNotEmpty(children)) {
-            var path = field.getPath();
-            var should = field.isShould();
-            var scoreMode = field.getScoreMode();
-            var query = new BoolQueryBuilder();
+            String path = field.getPath();
+            boolean should = field.isShould();
+            ScoreMode scoreMode = field.getScoreMode();
+            BoolQueryBuilder query = new BoolQueryBuilder();
             for (EsQueryValue child : children) {
-                var childQuery = queryBuilder(child);
+                QueryBuilder childQuery = queryBuilder(child);
                 if (should) {
                     query.should(childQuery);
                 } else {

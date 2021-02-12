@@ -1,7 +1,7 @@
 package org.dreamcat.jwrap.elasticsearch;
 
 import java.io.IOException;
-import javax.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionListener;
@@ -11,7 +11,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.PutMappingRequest;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.springframework.stereotype.Component;
 
 /**
  * Create by tuke on 2021/1/15
@@ -19,18 +18,17 @@ import org.springframework.stereotype.Component;
  * if the field exists, you typically have to reindex.
  */
 @Slf4j
-@Component
+@RequiredArgsConstructor
 public class EsMappingComponent {
 
-    @Resource
-    private RestHighLevelClient restHighLevelClient;
+    private final RestHighLevelClient restHighLevelClient;
 
-    public boolean putMapping(String mapping) {
-        var request = new PutMappingRequest()
+    public boolean putMapping(String index, String mapping) {
+        PutMappingRequest request = new PutMappingRequest(index)
                 .source(mapping, XContentType.JSON);
 
         try {
-            var response = restHighLevelClient.indices()
+            AcknowledgedResponse response = restHighLevelClient.indices()
                     .putMapping(request, RequestOptions.DEFAULT);
             return response.isAcknowledged();
         } catch (IOException e) {
@@ -39,8 +37,9 @@ public class EsMappingComponent {
     }
 
     public Cancellable putMappingAsync(
-            String mapping, ActionListener<AcknowledgedResponse> listener) {
-        var request = new PutMappingRequest()
+            String index, String mapping,
+            ActionListener<AcknowledgedResponse> listener) {
+        PutMappingRequest request = new PutMappingRequest(index)
                 .source(mapping, XContentType.JSON);
         return restHighLevelClient.indices()
                 .putMappingAsync(request, RequestOptions.DEFAULT, listener);

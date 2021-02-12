@@ -1,0 +1,15 @@
+
+###
+POST {{origin}}/ddl/table?timestamp=1599025683547
+
+###
+POST {{origin}}/complex?name=tuke&firstName=Bobby&lastName=Strange&tags=javaee,coder
+
+###
+GET {{origin}}/complex?id=1
+
+###
+POST {{origin}}/simple?content=tuke
+
+###
+GET {{origin}}/simple?id=1

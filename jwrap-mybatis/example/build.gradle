@@ -1,0 +1,38 @@
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+dependencies {
+    implementation project(":jwrap-mybatis")
+    implementation "org.dreamcat:common-web:$COMMON_VERSION"
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.4'
+    runtimeOnly 'mysql:mysql-connector-java'
+}
+
+// include mybatis xml files
+processResources {
+    from('src/main/java') { include '**/*.xml' }
+    from('src/test/java') { include '**/*.xml' }
+}
+
+// copy into classpath:**/*Mapper.xml
+task mapperXmlCopy(type: Copy) {
+    copy {
+        from("src/main/java") { include("**/*Mapper.xml") }
+        into("${buildDir}/resources/main")
+    }
+    copy {
+        from("src/test/java") { include("**/*Mapper.xml") }
+        into("${buildDir}/resources/test")
+    }
+}
+
+task mapperXmlCopyToIdeaOut(type: Copy) {
+    copy {
+        from("src/test/java") { include("**/*Mapper.xml") }
+        into("${projectDir}/out/test/resources")
+    }
+}

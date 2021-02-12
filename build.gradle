@@ -1,10 +1,10 @@
 plugins {
     // https://plugins.gradle.org/plugin/org.springframework.boot
-    id 'org.springframework.boot' version '2.3.5.RELEASE' apply false
+    id 'org.springframework.boot' version '2.4.2' apply false
     // https://plugins.gradle.org/plugin/io.spring.dependency-management
-    id 'io.spring.dependency-management' version '1.0.10.RELEASE' apply false
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE' apply false
     // https://plugins.gradle.org/plugin/org.sonarqube
-    id "org.sonarqube" version "3.1" apply false
+    id "org.sonarqube" version "3.1.1" apply false
 }
 
 subprojects {
@@ -13,7 +13,7 @@ subprojects {
 
     compileJava.options.encoding = 'UTF-8'
     compileTestJava.options.encoding = 'UTF-8'
-    sourceCompatibility = '11'
+    sourceCompatibility = '8'
     version = VERSION
     group = GROUP_ID
 
@@ -31,9 +31,11 @@ subprojects {
         implementation "org.slf4j:slf4j-api:$slf4jVersion"
         testImplementation "junit:junit:$junitVersion"
 
-        implementation "org.dreamcat:common-core:0.0.1"
-        implementation "org.dreamcat:common-x:0.0.1"
+        implementation "org.dreamcat:common-core:$COMMON_VERSION"
     }
 
-    apply from: "../publish.gradle"
+    if (projectDir.getParent() == rootDir.path) {
+        // apply from: "../publish.gradle"
+        apply from: "../publish-mavenCentral.gradle"
+    }
 }

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.dreamcat.jwrap.mybatis.dao.ComplexMapper">
+  <resultMap id="Entity" type="org.dreamcat.jwrap.mybatis.entity.ComplexEntity">
+    <id property="id" column="id"/>
+    <result property="tenantId" column="tenant_id"/>
+    <result property="createTime" column="create_time"/>
+    <result property="updateTime" column="update_time"/>
+    <result property="name" column="name"/>
+    <result property="tags" column="tags"
+      typeHandler="org.dreamcat.jwrap.mybatis.entity.ComplexEntity$TagsTypeHandler"/>
+    <result property="user" column="user"
+      typeHandler="org.dreamcat.jwrap.mybatis.entity.ComplexEntity$UserTypeHandler"/>
+    <result property="tenantId" column="tenant_id"/>
+  </resultMap>
+
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into complex(id, name, tags, user, tenant_id)
+    values (#{entity.id}, #{entity.name},
+    #{entity.tags, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$TagsTypeHandler},
+    #{entity.user, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$UserTypeHandler},
+    #{tenantId})
+  </insert>
+
+  <insert id="batchInsert" keyProperty="list.id" useGeneratedKeys="true" parameterType="java.util.List">
+    insert into complex(id, name, tags, user, tenant_id)
+    values
+    <foreach collection="list" item="entity" index="index" separator=",">
+      (#{entity.id}, #{entity.name},
+      #{entity.tags, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$TagsTypeHandler},
+      #{entity.user, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$UserTypeHandler},
+      #{tenantId})
+    </foreach>
+  </insert>
+
+  <update id="update">
+    update complex
+    set name = #{entity.name},
+        tags = #{entity.tags, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$TagsTypeHandler},
+        user = #{entity.user, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$UserTypeHandler}
+    where id = #{entity.id}
+      and tenant_id = #{tenantId}
+  </update>
+
+  <update id="batchUpdate">
+    update complex
+    set name = #{entity.name},
+        tags = #{entity.tags, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$TagsTypeHandler},
+        user = #{entity.user, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$UserTypeHandler}
+    where id in
+    <foreach collection="ids" open="(" close=")" separator="," item="id">
+      #{id}
+    </foreach>
+      and tenant_id = #{tenantId}
+  </update>
+
+  <select id="select" resultMap="Entity">
+    select *
+    from complex
+    where id = #{id}
+  </select>
+
+  <delete id="delete">
+    delete from complex
+    where id = #{id}
+  </delete>
+
+  <delete id="batchDelete">
+    delete from complex
+    where id in
+    <foreach collection="ids" open="(" close=")" separator="," item="id">
+      #{id}
+    </foreach>
+  </delete>
+</mapper>
