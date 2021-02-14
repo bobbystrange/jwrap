@@ -1,83 +1,102 @@
 package org.dreamcat.jwrap.excel.map;
 
-import static org.dreamcat.common.util.RandomUtil.choose10;
-import static org.dreamcat.common.util.RandomUtil.choose36;
-import static org.dreamcat.common.util.RandomUtil.choose72;
 import static org.dreamcat.common.util.RandomUtil.randi;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import org.dreamcat.common.x.asm.BeanMapUtil;
+import lombok.NoArgsConstructor;
+import org.dreamcat.jwrap.excel.BaseTest;
+import org.dreamcat.jwrap.excel.annotation.XlsCell;
+import org.dreamcat.jwrap.excel.annotation.XlsSheet;
 import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
-import org.dreamcat.jwrap.excel.core.IExcelCell;
+import org.dreamcat.jwrap.excel.core.IExcelSheet;
 import org.junit.Test;
 
 /**
  * Create by tuke on 2020/7/26
  */
-public class AnnotationRowSheetTest {
+public class AnnotationRowSheetTest implements BaseTest {
 
     @Test
-    public void test() throws Exception {
-        AnnotationRowSheet sheet = new AnnotationRowSheet(XlsMetaTest.newPojo());
-        for (IExcelCell cell : sheet) {
-            System.out.printf("[%d, %d, %d, %d] %s\n%s\n%s\n\n",
-                    cell.getRowIndex(), cell.getColumnIndex(),
-                    cell.getRowSpan(), cell.getColumnSpan(),
-                    cell.getContent(),
-                    cell.getFont(), cell.getStyle()
-            );
-        }
+    public void test() {
+        ExcelWorkbook<IExcelSheet> book = new ExcelWorkbook<>();
 
-        new ExcelWorkbook<>()
-                .add(sheet)
-                .writeTo("/Users/tuke/Downloads/book.xlsx");
+        Pojo pojo = newPojo();
+        AnnotationRowSheet sheet = new AnnotationRowSheet(pojo, book);
+        printSheet(sheet, book);
+
+        AnnotationListSheet listSheet = new AnnotationListSheet("Sheet");
+        listSheet.addSheet(sheet);
+        listSheet.addSheet(new AnnotationRowSheet(newPojo(), book));
+        listSheet.addSheet(new AnnotationRowSheet(newPojo(), book));
+
+        writeXlsx(book, "book_AnnotationRowSheetTest_test", listSheet);
     }
 
-    @Test
-    public void testDynamicColumn() throws Exception {
-        DynamicPojo pojo = newDynamicPojo();
-        System.out.println(pojo);
-
-        AnnotationRowSheet sheet = new AnnotationRowSheet(pojo);
-
-        new ExcelWorkbook<>()
-                .add(sheet)
-                .writeTo("/Users/tuke/Downloads/book.xlsx");
+    public static Pojo newPojo() {
+        Pojo pojo = new Pojo();
+        pojo.setS("S");
+        pojo.setSA(Stream.of(1, 2, 3, 4)
+                .map(it -> "SA" + it)
+                .collect(Collectors.toList()));
+        pojo.setV(new Item("V1", "V2"));
+        pojo.setVA(Stream.of(1, 2, 3)
+                .map(it -> new Item("VA1-" + it, "VA2-" + it))
+                .collect(Collectors.toList()));
+        // D
+        int width = randi(2, 5);
+        Map<String, String> d = new HashMap<>();
+        for (int i = 1; i <= width; i++) {
+            d.put("$" + i, "D" + i);
+        }
+        pojo.setD(d);
+        // DA
+        int width2 = randi(2, 5);
+        pojo.setDA(Stream.of(1, 2, 3).map(it -> {
+            Map<String, String> m = new TreeMap<>();
+            for (int i = 1; i <= width2; i++) {
+                m.put("$" + i, "DA" + it + "-" + i);
+            }
+            return m;
+        }).collect(Collectors.toList()));
+        return pojo;
     }
 
     @Data
-    @EqualsAndHashCode(callSuper = true)
-    public static class DynamicPojo extends XlsMetaTest.Pojo {
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @XlsSheet(name = "Pojo")
+    public static class Pojo {
 
-        private Map<String, String> map;
-        private List<Map<String, String>> mapList;
-
+        List<String> SA;
+        String S;
+        @XlsCell(expanded = true)
+        Item V;
+        List<Map<String, String>> DA;
+        Map<String, String> D;
+        @XlsCell(expanded = true, expandedType = Item.class)
+        List<Item> VA;
     }
 
-    public static DynamicPojo newDynamicPojo() {
-        DynamicPojo pojo = new DynamicPojo();
-        BeanMapUtil.copy(XlsMetaTest.newPojo(), pojo);
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @XlsSheet(name = "item")
+    public static class Item {
 
-        Map<String, String> map = new HashMap<>();
-        map.put("a", "map-a-" + choose10(12));
-        map.put("b", "map-b-" + choose36(randi(2, 6)));
-        map.put("c", "map-c-" + choose72(randi(3, 4)));
-        pojo.setMap(map);
+        String r1;
+        String r2;
 
-        List<Map<String, String>> mapList = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
-            Map<String, String> m = new HashMap<>();
-            m.put("a", "mapList-a-" + choose10(12));
-            m.put("b", "mapList-b-" + choose36(randi(2, 6)));
-            m.put("c", "mapList-c-" + choose72(randi(3, 4)));
-            mapList.add(m);
+        @Override
+        public String toString() {
+            return r2;
         }
-        pojo.setMapList(mapList);
-        return pojo;
     }
+
 }

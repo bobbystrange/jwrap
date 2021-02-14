@@ -8,7 +8,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.dreamcat.jwrap.excel.core.ExcelRichCell;
 import org.dreamcat.jwrap.excel.core.IExcelCell;
 
 /**
@@ -31,18 +30,17 @@ public class ExcelHyperLink {
         return link;
     }
 
-    public void fill(IExcelCell excelCell, Workbook workbook, Cell cell) {
+    public void fill(Cell cell, Workbook workbook, IExcelCell excelCell) {
         CreationHelper creationHelper = workbook.getCreationHelper();
         Hyperlink link = creationHelper.createHyperlink(type);
         link.setAddress(address);
         if (label != null) link.setLabel(label);
 
-        if (excelCell instanceof ExcelRichCell) {
-            ExcelRichCell richCell = (ExcelRichCell) excelCell;
-            link.setFirstRow(richCell.getRowIndex());
-            link.setLastRow(richCell.getRowIndex() + richCell.getRowSpan() - 1);
-            link.setFirstColumn(richCell.getColumnIndex());
-            link.setLastColumn(richCell.getColumnIndex() + richCell.getColumnSpan() - 1);
+        if (excelCell.hasMergedRegion()) {
+            link.setFirstRow(excelCell.getRowIndex());
+            link.setLastRow(excelCell.getRowIndex() + excelCell.getRowSpan() - 1);
+            link.setFirstColumn(excelCell.getColumnIndex());
+            link.setLastColumn(excelCell.getColumnIndex() + excelCell.getColumnSpan() - 1);
         }
         cell.setHyperlink(link);
     }

@@ -22,7 +22,7 @@ import org.dreamcat.jwrap.excel.parse.XlsParse;
 @Slf4j
 @Setter
 public class SVParser<S, V> implements
-        IExcelParser<org.dreamcat.jwrap.excel.parse.tow.SVRow<S, V>> {
+        IExcelParser<SVRow<S, V>> {
 
     private int headerIndex = 0;
     // tow level sequence column index
@@ -51,7 +51,7 @@ public class SVParser<S, V> implements
         this.vectorColumns = FieldColumn.parse(vectorClass);
 
         Map<String, Field> fieldMap = ReflectUtil.retrieveFieldMap(
-                org.dreamcat.jwrap.excel.parse.tow.SVRow.class);
+                SVRow.class);
         this.scalarField = fieldMap.get("scalar");
         this.scalarMapField = fieldMap.get("map");
         this.vectorField = fieldMap.get("vector");
@@ -63,7 +63,7 @@ public class SVParser<S, V> implements
     }
 
     @Override
-    public List<org.dreamcat.jwrap.excel.parse.tow.SVRow<S, V>> readSheetAsValue(List<List<String>> sheet) throws Exception {
+    public List<SVRow<S, V>> readSheetAsValue(List<List<String>> sheet) throws Exception {
         if (ObjectUtil.isEmpty(sheet)) return null;
 
         int rowSize = sheet.size();
@@ -78,7 +78,7 @@ public class SVParser<S, V> implements
                     "empty header row in row " + headerIndex);
         }
 
-        List<org.dreamcat.jwrap.excel.parse.tow.SVRow<S, V>> list = new ArrayList<>();
+        List<SVRow<S, V>> list = new ArrayList<>();
         next:
         for (int i = headerIndex + 1; i < rowSize; i++) {
             List<String> values = sheet.get(i);
@@ -107,7 +107,7 @@ public class SVParser<S, V> implements
                     throw new IllegalArgumentException("missing sequence in row " + i);
                 }
 
-                org.dreamcat.jwrap.excel.parse.tow.SVRow<S, V> bean = new org.dreamcat.jwrap.excel.parse.tow.SVRow<>();
+                SVRow<S, V> bean = new SVRow<>();
                 int width = readOneRow(bean, headers, values);
                 list.add(bean);
                 while (i < rowSize - 1) {
@@ -121,7 +121,7 @@ public class SVParser<S, V> implements
                     sequence = values.get(scalarSequenceIndex);
                     if (sequence != null) continue values;
 
-                    org.dreamcat.jwrap.excel.parse.tow.SVColumn<V> svColumn = readSVColumn(headers, values, width);
+                    SVColumn<V> svColumn = readSVColumn(headers, values, width);
                     bean.getVector().add(svColumn);
                 }
                 break;
@@ -131,7 +131,7 @@ public class SVParser<S, V> implements
         return list;
     }
 
-    private int readOneRow(org.dreamcat.jwrap.excel.parse.tow.SVRow<S, V> bean, List<String> headers, List<String> values)
+    private int readOneRow(SVRow<S, V> bean, List<String> headers, List<String> values)
             throws IllegalAccessException {
         S scalar = ReflectUtil.newInstance(scalarClass);
         scalarField.set(bean, scalar);
@@ -152,7 +152,7 @@ public class SVParser<S, V> implements
                         field.set(scalar, ReflectUtil.parse(value, field.getType()));
                         continue;
                     } else {
-                        org.dreamcat.jwrap.excel.parse.XlsParse xlsParse = (org.dreamcat.jwrap.excel.parse.XlsParse) annotations.get(0);
+                        XlsParse xlsParse = (XlsParse) annotations.get(0);
                         Class<? extends Function<String, Object>> deserializerClass = xlsParse
                                 .deserializer();
                         deserializer = ReflectUtil.newInstance(deserializerClass);
@@ -178,7 +178,7 @@ public class SVParser<S, V> implements
                         childField.set(fieldObject, ReflectUtil.parse(value, field.getType()));
                         continue;
                     } else {
-                        org.dreamcat.jwrap.excel.parse.XlsParse xlsParse = (org.dreamcat.jwrap.excel.parse.XlsParse) childAnnotations.get(0);
+                        XlsParse xlsParse = (XlsParse) childAnnotations.get(0);
                         Class<? extends Function<String, Object>> deserializerClass = xlsParse
                                 .deserializer();
                         deserializer = ReflectUtil.newInstance(deserializerClass);
@@ -219,16 +219,16 @@ public class SVParser<S, V> implements
 
         int width = offset;
         // vector
-        List<org.dreamcat.jwrap.excel.parse.tow.SVColumn<V>> vector = new ArrayList<>();
+        List<SVColumn<V>> vector = new ArrayList<>();
         vectorField.set(bean, vector);
-        org.dreamcat.jwrap.excel.parse.tow.SVColumn<V> svColumn = readSVColumn(headers, values, offset);
+        SVColumn<V> svColumn = readSVColumn(headers, values, offset);
         vector.add(svColumn);
         return width;
     }
 
-    private org.dreamcat.jwrap.excel.parse.tow.SVColumn<V> readSVColumn(List<String> headers, List<String> values, int offset)
+    private SVColumn<V> readSVColumn(List<String> headers, List<String> values, int offset)
             throws IllegalAccessException {
-        org.dreamcat.jwrap.excel.parse.tow.SVColumn<V> svColumn = new org.dreamcat.jwrap.excel.parse.tow.SVColumn<>();
+        SVColumn<V> svColumn = new SVColumn<>();
 
         V svColumnScalar = ReflectUtil.newInstance(vectorClass);
         scalarField.set(svColumn, svColumnScalar);
@@ -247,7 +247,7 @@ public class SVParser<S, V> implements
                         field.set(svColumnScalar, ReflectUtil.parse(value, field.getType()));
                         continue;
                     } else {
-                        org.dreamcat.jwrap.excel.parse.XlsParse xlsParse = (org.dreamcat.jwrap.excel.parse.XlsParse) annotations.get(0);
+                        XlsParse xlsParse = (XlsParse) annotations.get(0);
                         Class<? extends Function<String, Object>> deserializerClass = xlsParse
                                 .deserializer();
                         deserializer = ReflectUtil.newInstance(deserializerClass);
@@ -273,7 +273,7 @@ public class SVParser<S, V> implements
                         childField.set(fieldObject, ReflectUtil.parse(value, field.getType()));
                         continue;
                     } else {
-                        org.dreamcat.jwrap.excel.parse.XlsParse xlsParse = (org.dreamcat.jwrap.excel.parse.XlsParse) childAnnotations.get(0);
+                        XlsParse xlsParse = (XlsParse) childAnnotations.get(0);
                         Class<? extends Function<String, Object>> deserializerClass = xlsParse
                                 .deserializer();
                         deserializer = ReflectUtil.newInstance(deserializerClass);
@@ -316,7 +316,7 @@ public class SVParser<S, V> implements
 
             List<Annotation> annotations = column.getAnnotations();
             if (ObjectUtil.isEmpty(annotations)) continue;
-            annotations.removeIf(annotation -> !(annotation instanceof org.dreamcat.jwrap.excel.parse.XlsParse));
+            annotations.removeIf(annotation -> !(annotation instanceof XlsParse));
 
             List<FieldColumn> children = column.getChildren();
             if (ObjectUtil.isEmpty(children)) continue;

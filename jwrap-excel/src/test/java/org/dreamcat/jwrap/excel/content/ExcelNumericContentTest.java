@@ -1,10 +1,12 @@
 package org.dreamcat.jwrap.excel.content;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Create by tuke on 2020/7/21
  */
+@Ignore
 public class ExcelNumericContentTest {
 
     @Test

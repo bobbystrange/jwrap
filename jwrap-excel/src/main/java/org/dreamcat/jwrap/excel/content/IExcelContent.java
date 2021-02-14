@@ -2,6 +2,8 @@ package org.dreamcat.jwrap.excel.content;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.RichTextString;
+import org.dreamcat.jwrap.excel.style.ExcelRichString;
 
 /**
  * Create by tuke on 2020/7/21
@@ -12,7 +14,8 @@ public interface IExcelContent {
         CellType type = cell.getCellType();
         switch (type) {
             case STRING:
-                return new org.dreamcat.jwrap.excel.content.ExcelStringContent(cell.getStringCellValue());
+                RichTextString richTextString = cell.getRichStringCellValue();
+                return new ExcelStringContent(ExcelRichString.from(richTextString));
             case NUMERIC:
                 return new ExcelNumericContent(cell.getNumericCellValue());
             case BOOLEAN:

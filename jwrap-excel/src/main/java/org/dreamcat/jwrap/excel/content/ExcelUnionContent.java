@@ -1,22 +1,25 @@
 package org.dreamcat.jwrap.excel.content;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.dreamcat.jwrap.excel.style.ExcelRichString;
 
 /**
  * Create by tuke on 2020/7/22
  */
 @SuppressWarnings("rawtypes")
-public class ExcelUnionContent implements org.dreamcat.jwrap.excel.content.IExcelContent {
+public class ExcelUnionContent implements IExcelContent {
 
-    private final org.dreamcat.jwrap.excel.content.ExcelStringContent stringContent;
-    private final org.dreamcat.jwrap.excel.content.ExcelNumericContent numericContent;
+    private final ExcelStringContent stringContent;
+    private final ExcelNumericContent numericContent;
     private final ExcelBooleanContent booleanContent;
-    private transient org.dreamcat.jwrap.excel.content.IExcelContent rawContent;
-    private transient Class type;
+    // transient
+    private IExcelContent rawContent;
+    // transient
+    private Class type;
 
     protected ExcelUnionContent() {
-        this.stringContent = new org.dreamcat.jwrap.excel.content.ExcelStringContent();
-        this.numericContent = new org.dreamcat.jwrap.excel.content.ExcelNumericContent();
+        this.stringContent = new ExcelStringContent();
+        this.numericContent = new ExcelNumericContent();
         this.booleanContent = new ExcelBooleanContent();
     }
 
@@ -41,13 +44,13 @@ public class ExcelUnionContent implements org.dreamcat.jwrap.excel.content.IExce
     }
 
     public void setStringContent(String value) {
-        this.stringContent.setValue(value);
-        this.type = org.dreamcat.jwrap.excel.content.ExcelStringContent.class;
+        this.stringContent.setValue(ExcelRichString.from(value));
+        this.type = ExcelStringContent.class;
     }
 
     public void setNumericContent(double value) {
         this.numericContent.setValue(value);
-        this.type = org.dreamcat.jwrap.excel.content.ExcelNumericContent.class;
+        this.type = ExcelNumericContent.class;
     }
 
     public void setBooleanContent(boolean value) {
@@ -55,9 +58,9 @@ public class ExcelUnionContent implements org.dreamcat.jwrap.excel.content.IExce
         this.type = ExcelBooleanContent.class;
     }
 
-    public void setRawContent(org.dreamcat.jwrap.excel.content.IExcelContent rawContent) {
+    public void setRawContent(IExcelContent rawContent) {
         this.rawContent = rawContent;
-        this.type = org.dreamcat.jwrap.excel.content.IExcelContent.class;
+        this.type = IExcelContent.class;
     }
 
     public void setContent(Object value) {
@@ -67,7 +70,7 @@ public class ExcelUnionContent implements org.dreamcat.jwrap.excel.content.IExce
         } else if (value instanceof Boolean) {
             Boolean bool = (Boolean) value;
             setBooleanContent(bool);
-        } else if (value instanceof org.dreamcat.jwrap.excel.content.IExcelContent) {
+        } else if (value instanceof IExcelContent) {
             setRawContent((IExcelContent) value);
         } else {
             setStringContent(value == null ? "" : value.toString());
@@ -76,9 +79,9 @@ public class ExcelUnionContent implements org.dreamcat.jwrap.excel.content.IExce
 
     @Override
     public String toString() {
-        if (type.equals(org.dreamcat.jwrap.excel.content.ExcelStringContent.class)) {
-            return stringContent.getValue();
-        } else if (type.equals(org.dreamcat.jwrap.excel.content.ExcelNumericContent.class)) {
+        if (type.equals(ExcelStringContent.class)) {
+            return stringContent.getValue().getString();
+        } else if (type.equals(ExcelNumericContent.class)) {
             return String.valueOf(numericContent.getValue());
         } else if (type.equals(ExcelBooleanContent.class)) {
             return String.valueOf(booleanContent.isValue());

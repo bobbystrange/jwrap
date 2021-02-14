@@ -9,15 +9,14 @@ import java.util.TreeMap;
 import lombok.Data;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.dreamcat.jwrap.excel.content.IExcelContent;
-import org.dreamcat.jwrap.excel.style.ExcelFont;
+import org.dreamcat.jwrap.excel.style.ExcelComment;
 import org.dreamcat.jwrap.excel.style.ExcelHyperLink;
-import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
 /**
  * Create by tuke on 2020/7/20
@@ -27,26 +26,18 @@ public class ExcelSheet implements IExcelSheet {
 
     private final String name;
     private final List<IExcelCell> cells;
-    private org.dreamcat.jwrap.excel.core.IExcelWriteCallback writeCallback;
-    // not load styles in from case
-    private boolean noStyle;
+    private IExcelWriteCallback writeCallback;
 
     public ExcelSheet(String name) {
         this.name = name;
         this.cells = new ArrayList<>();
     }
 
-    public static ExcelSheet from(Workbook workbook, Sheet sheet) {
-        return from(workbook, sheet, true);
-    }
-
-    public static ExcelSheet from(Workbook workbook, Sheet sheet, boolean noStyle) {
+    public static ExcelSheet from(Sheet sheet) {
         ExcelSheet excelSheet = new ExcelSheet(sheet.getSheetName());
-        excelSheet.setNoStyle(noStyle);
 
-        List<IExcelCell> cells = excelSheet.getCells();
         int rowNum = sheet.getPhysicalNumberOfRows();
-        Map<Integer, Map<Integer, org.dreamcat.jwrap.excel.core.ExcelCell>> cellMap = new TreeMap<>();
+        Map<Integer, Map<Integer, ExcelCell>> cellMap = new TreeMap<>();
         for (int i = 0; i < rowNum; i++) {
             Row row = sheet.getRow(i);
             if (row == null) continue;
@@ -58,43 +49,44 @@ public class ExcelSheet implements IExcelSheet {
             for (int j = start; j < end; j++) {
                 Cell cell = row.getCell(j);
                 if (cell == null) continue;
-                IExcelContent content = IExcelContent.from(cell);
-                org.dreamcat.jwrap.excel.core.ExcelCell excelCell = null;
-
-                if (noStyle) {
-                    excelCell = new org.dreamcat.jwrap.excel.core.ExcelCell(content, i, j);
-                    cells.add(excelCell);
-                    continue;
-                }
-
-                Hyperlink hyperlink = cell.getHyperlink();
-                CellStyle style = cell.getCellStyle();
-
-                if (hyperlink != null || style != null) {
-                    org.dreamcat.jwrap.excel.core.ExcelRichCell richCell = new ExcelRichCell(content, i, j);
-                    if (hyperlink != null) {
-                        richCell.setHyperLink(ExcelHyperLink.from(hyperlink));
-                    }
-                    if (style != null) {
-                        richCell.setStyle(ExcelStyle.from(style));
-                        richCell.setFont(ExcelFont.from(workbook, style));
-                    }
-
-                    excelCell = richCell;
-                }
-
-                if (excelCell == null) {
-                    excelCell = new org.dreamcat.jwrap.excel.core.ExcelCell(content, i, j);
-                }
-
-                cells.add(excelCell);
-                cellMap.computeIfAbsent(i, it -> new TreeMap<>())
-                        .put(j, excelCell);
+                excelSheet.fillCellMap(cellMap, cell, i, j);
             }
         }
 
+        excelSheet.computeSpans(cellMap, sheet);
+        return excelSheet;
+    }
+
+    private void fillCellMap(
+            Map<Integer, Map<Integer, ExcelCell>> cellMap,
+            Cell cell, int i, int j) {
+        IExcelContent content = IExcelContent.from(cell);
+        ExcelCell excelCell = new ExcelCell(content, i, j);
+
+        CellStyle style = cell.getCellStyle();
+        Hyperlink hyperlink = cell.getHyperlink();
+        Comment comment = cell.getCellComment();
+        if (style != null) {
+            excelCell.styleIndex(style.getIndex())
+                    .fontIndex(style.getFontIndex());
+        }
+        if (hyperlink != null) {
+            excelCell.hyperLink(ExcelHyperLink.from(hyperlink));
+        }
+        if (comment != null) {
+            excelCell.comment(ExcelComment.from(comment));
+        }
+
+        cells.add(excelCell);
+        cellMap.computeIfAbsent(i, it -> new TreeMap<>())
+                .put(j, excelCell);
+    }
+
+    private void computeSpans(
+            Map<Integer, Map<Integer, ExcelCell>> cellMap,
+            Sheet sheet) {
         int numMergedRegions = sheet.getNumMergedRegions();
-        if (numMergedRegions == 0) return excelSheet;
+        if (numMergedRegions == 0) return;
 
         for (IExcelCell cell : cells) {
             IExcelCell leftCell = getLeftCell(cell, cellMap);
@@ -119,15 +111,13 @@ public class ExcelSheet implements IExcelSheet {
                 lastCell.setColumnSpan(addresses.getLastColumn() - ci);
             }
         }
-
-        return excelSheet;
     }
 
     private static IExcelCell getLeftCell(IExcelCell cell,
-            Map<Integer, Map<Integer, org.dreamcat.jwrap.excel.core.ExcelCell>> map) {
+            Map<Integer, Map<Integer, ExcelCell>> map) {
         int ri = cell.getRowIndex();
         int ci = cell.getColumnIndex();
-        org.dreamcat.jwrap.excel.core.ExcelCell excelCell;
+        ExcelCell excelCell;
         while (--ci >= 0) {
             excelCell = map.getOrDefault(ri, Collections.emptyMap()).get(ci);
             if (excelCell != null) return excelCell;
@@ -136,7 +126,7 @@ public class ExcelSheet implements IExcelSheet {
     }
 
     private static IExcelCell getTopCell(IExcelCell cell,
-            Map<Integer, Map<Integer, org.dreamcat.jwrap.excel.core.ExcelCell>> map) {
+            Map<Integer, Map<Integer, ExcelCell>> map) {
         int ri = cell.getRowIndex();
         int ci = cell.getColumnIndex();
         ExcelCell excelCell;

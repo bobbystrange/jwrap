@@ -3,16 +3,19 @@ package org.dreamcat.jwrap.excel.core;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import lombok.Data;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.PictureData;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.dreamcat.jwrap.excel.content.ExcelPicture;
 import org.dreamcat.jwrap.excel.style.ExcelFont;
 import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
@@ -23,11 +26,15 @@ import org.dreamcat.jwrap.excel.style.ExcelStyle;
 public class ExcelWorkbook<T extends IExcelSheet> implements IExcelWorkbook<T> {
 
     private final List<T> sheets;
-    private ExcelStyle defaultStyle;
-    private ExcelFont defaultFont;
+    private final List<ExcelFont> fonts;
+    private final List<ExcelStyle> styles;
+    private final List<ExcelPicture> pictures;
 
     public ExcelWorkbook() {
         this.sheets = new ArrayList<>();
+        this.fonts = new ArrayList<>();
+        this.styles = new ArrayList<>();
+        this.pictures = new ArrayList<>();
     }
 
     public static ExcelWorkbook<ExcelSheet> from(File file)
@@ -51,24 +58,32 @@ public class ExcelWorkbook<T extends IExcelSheet> implements IExcelWorkbook<T> {
     }
 
     public static ExcelWorkbook<ExcelSheet> from(Workbook workbook) {
-        ExcelWorkbook<ExcelSheet> book = new ExcelWorkbook<>();
-
+        ExcelWorkbook<ExcelSheet> excelWorkbook = new ExcelWorkbook<>();
+        // font
+        int fontNum = workbook.getNumberOfFonts();
+        for (int i = 0; i < fontNum; i++) {
+            Font font = workbook.getFontAt(i);
+            ExcelFont excelFont = ExcelFont.from(font);
+            excelWorkbook.fonts.add(excelFont);
+        }
+        // cell style
+        int cellStyleNum = workbook.getNumCellStyles();
+        for (int i = 0; i < cellStyleNum; i++) {
+            CellStyle cellStyle = workbook.getCellStyleAt(i);
+            ExcelStyle excelStyle = ExcelStyle.from(cellStyle);
+            excelWorkbook.styles.add(excelStyle);
+        }
+        // sheet
         int sheetNum = workbook.getNumberOfSheets();
         for (int i = 0; i < sheetNum; i++) {
             Sheet sheet = workbook.getSheetAt(i);
-            book.sheets.add(ExcelSheet.from(workbook, sheet));
+            excelWorkbook.sheets.add(ExcelSheet.from(sheet));
         }
-        return book;
-    }
-
-    @Override
-    public Iterator<T> iterator() {
-        return sheets.iterator();
-    }
-
-    @Override
-    public ExcelWorkbook<T> add(T sheet) {
-        sheets.add(sheet);
-        return this;
+        // picture
+        List<? extends PictureData> pictures = workbook.getAllPictures();
+        for (PictureData picture : pictures) {
+            excelWorkbook.pictures.add(ExcelPicture.from(picture));
+        }
+        return excelWorkbook;
     }
 }

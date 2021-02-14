@@ -29,7 +29,7 @@ public @interface XlsFont {
 
     short color() default -1;
 
-    IndexedColors indexedColor() default IndexedColors.WHITE;
+    IndexedColors indexedColor() default IndexedColors.AUTOMATIC;
 
     short height() default -1;
 }

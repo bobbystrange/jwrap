@@ -5,10 +5,9 @@ ext {
 dependencies {
     implementation "org.dreamcat:common-x:$COMMON_VERSION"
     // https://mvnrepository.com/artifact/org.apache.poi/poi
-    implementation "org.apache.poi:poi:${poiVersion}"
-    implementation "org.apache.poi:poi-ooxml:${poiVersion}"
+    implementation "org.apache.poi:poi:$poiVersion"
+    implementation "org.apache.poi:poi-ooxml:$poiVersion"
 
     testImplementation "org.slf4j:slf4j-simple:1.7.30"
     testImplementation "com.opencsv:opencsv:5.1"
-    testImplementation "com.alibaba:easyexcel:2.2.6"
 }

@@ -19,11 +19,13 @@ import org.dreamcat.jwrap.excel.core.ExcelCell;
 import org.dreamcat.jwrap.excel.core.ExcelSheet;
 import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
 import org.dreamcat.jwrap.excel.map.AnnotationListSheet;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Create by tuke on 2020/7/27
  */
+@Ignore
 @SuppressWarnings("unchecked")
 public class AnnotationListSheetSpeedTest {
 
@@ -73,7 +75,7 @@ public class AnnotationListSheetSpeedTest {
         sheet.addAll(pojoList);
         sheet.setWriteCallback(new FitWidthWriteCallback());
         new ExcelWorkbook<>()
-                .add(sheet)
+                .addSheet(sheet)
                 .writeToWithBigGrid("/Users/tuke/Downloads/book2.xlsx");
     }
 
@@ -112,7 +114,7 @@ public class AnnotationListSheetSpeedTest {
 
         sheet.setWriteCallback(new FitWidthWriteCallback());
         new ExcelWorkbook<>()
-                .add(sheet)
+                .addSheet(sheet)
                 .writeToWithBigGrid("/Users/tuke/Downloads/book1.xlsx");
     }
 

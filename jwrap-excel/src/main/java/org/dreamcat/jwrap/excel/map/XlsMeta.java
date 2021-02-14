@@ -9,13 +9,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.Data;
+import org.dreamcat.common.util.ObjectUtil;
 import org.dreamcat.common.util.ReflectUtil;
 import org.dreamcat.common.util.StringUtil;
 import org.dreamcat.common.x.asm.BeanMapUtil;
 import org.dreamcat.jwrap.excel.annotation.XlsCell;
 import org.dreamcat.jwrap.excel.annotation.XlsFont;
 import org.dreamcat.jwrap.excel.annotation.XlsFormat;
-import org.dreamcat.jwrap.excel.annotation.XlsRichStyle;
 import org.dreamcat.jwrap.excel.annotation.XlsSheet;
 import org.dreamcat.jwrap.excel.annotation.XlsStyle;
 import org.dreamcat.jwrap.excel.style.ExcelFont;
@@ -29,11 +29,13 @@ public class XlsMeta {
 
     // @XlsSheet
     public String name;
-    public org.dreamcat.jwrap.excel.style.ExcelFont defaultFont;
-    public org.dreamcat.jwrap.excel.style.ExcelStyle defaultStyle;
+    public ExcelFont defaultFont;
+    public ExcelStyle defaultStyle;
     public final Map<Integer, Cell> cells;
-
+    // transient
     List<Integer> fieldIndexes;
+    List<ExcelFont> fonts;
+    List<ExcelStyle> styles;
 
     public XlsMeta() {
         this.cells = new HashMap<>();
@@ -42,10 +44,13 @@ public class XlsMeta {
     public List getFieldValues(Object row) {
         Map<String, Object> fields = BeanMapUtil.toMap(row);
         List<Object> fieldValues = new ArrayList<>(fields.size());
+        if (ObjectUtil.isEmpty(fields)) return fieldValues;
 
         Collection<Cell> c = cells.values();
         for (XlsMeta.Cell cell : c) {
-            fieldValues.add(fields.get(cell.fieldName));
+            Object fieldValue = fields.get(cell.fieldName);
+            if (fieldValue == null) continue;
+            fieldValues.add(fieldValue);
         }
         return fieldValues;
     }
@@ -59,6 +64,43 @@ public class XlsMeta {
         return fieldIndexes;
     }
 
+    public synchronized List<ExcelFont> getFonts() {
+        if (fonts == null) {
+            initFontAndStyles();
+        }
+        return fonts;
+    }
+
+    public synchronized List<ExcelStyle> getStyles() {
+        if (styles == null) {
+            initFontAndStyles();
+        }
+        return styles;
+    }
+
+    private void initFontAndStyles() {
+        fonts = new ArrayList<>();
+        styles = new ArrayList<>();
+        if (defaultFont != null) fonts.add(defaultFont);
+        if (defaultStyle != null) styles.add(defaultStyle);
+
+        for (int fieldIndex : getFieldIndexes()) {
+            Cell cell = cells.get(fieldIndex);
+
+            ExcelFont font = cell.font;
+            if (font != null) fonts.add(font);
+
+            ExcelStyle style = cell.style;
+            if (style != null) styles.add(style);
+
+            XlsMeta expandedMeta = cell.expandedMeta;
+            if (expandedMeta != null) {
+                fonts.addAll(expandedMeta.getFonts());
+                styles.addAll(expandedMeta.getStyles());
+            }
+        }
+    }
+
     // @XlsCell
     @Data
     public static class Cell {
@@ -69,8 +111,8 @@ public class XlsMeta {
         int span = 1;
         boolean expanded;
 
-        org.dreamcat.jwrap.excel.style.ExcelFont font;
-        org.dreamcat.jwrap.excel.style.ExcelStyle style;
+        ExcelFont font;
+        ExcelStyle style;
         // only not null if expended on a array field
         Class<?> expandedType;
         XlsMeta expandedMeta;
@@ -133,30 +175,28 @@ public class XlsMeta {
     private static void parseXlsFont(XlsMeta meta, Class<?> clazz) {
         XlsFont xlsFont = ReflectUtil.retrieveAnnotation(clazz, XlsFont.class);
         if (xlsFont == null) return;
-        meta.defaultFont = org.dreamcat.jwrap.excel.style.ExcelFont.from(xlsFont);
+        meta.defaultFont = ExcelFont.from(xlsFont);
     }
 
     private static void parseXlsStyle(XlsMeta meta, Class<?> clazz) {
         XlsStyle xlsStyle = ReflectUtil.retrieveAnnotation(clazz, XlsStyle.class);
         if (xlsStyle == null) return;
-        XlsRichStyle xlsRichStyle = ReflectUtil.retrieveAnnotation(clazz, XlsRichStyle.class);
-        meta.defaultStyle = org.dreamcat.jwrap.excel.style.ExcelStyle.from(xlsStyle, xlsRichStyle);
+        meta.defaultStyle = ExcelStyle.from(xlsStyle);
     }
 
     private static void parseXlsFont(Cell cell, Field field) {
         XlsFont xlsFont = field.getDeclaredAnnotation(XlsFont.class);
         if (xlsFont == null) return;
 
-        org.dreamcat.jwrap.excel.style.ExcelFont font = ExcelFont.from(xlsFont);
+        ExcelFont font = ExcelFont.from(xlsFont);
         cell.setFont(font);
     }
 
     private static void parseXlsStyle(Cell cell, Field field) {
         XlsStyle xlsStyle = field.getDeclaredAnnotation(XlsStyle.class);
-        XlsRichStyle xlsRichStyle = field.getDeclaredAnnotation(XlsRichStyle.class);
-        if (xlsStyle == null && xlsRichStyle == null) return;
+        if (xlsStyle == null) return;
 
-        org.dreamcat.jwrap.excel.style.ExcelStyle style = ExcelStyle.from(xlsStyle, xlsRichStyle);
+        ExcelStyle style = ExcelStyle.from(xlsStyle);
         cell.setStyle(style);
     }
 
@@ -164,19 +204,19 @@ public class XlsMeta {
         XlsFormat xlsFormat = field.getDeclaredAnnotation(XlsFormat.class);
         if (xlsFormat == null) return;
 
-        Class serializer = xlsFormat.serializer();
-        Class deserializer = xlsFormat.deserializer();
+        Class<?> serializer = xlsFormat.serializer();
+        Class<?> deserializer = xlsFormat.deserializer();
         if (serializer != XlsFormat.None.class) {
             try {
-                cell.serializer = (Function) serializer.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+                cell.serializer = (Function) ReflectUtil.newInstance(serializer);
+            } catch (Exception e) {
                 throw new IllegalArgumentException(e);
             }
         }
         if (deserializer != XlsFormat.None.class) {
             try {
-                cell.deserializer = (Function) deserializer.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+                cell.deserializer = (Function) ReflectUtil.newInstance(deserializer);
+            } catch (Exception e) {
                 throw new IllegalArgumentException(e);
             }
         }

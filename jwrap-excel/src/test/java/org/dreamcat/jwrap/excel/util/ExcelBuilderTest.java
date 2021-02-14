@@ -4,28 +4,30 @@ import static org.dreamcat.common.util.RandomUtil.rand;
 import static org.dreamcat.common.util.RandomUtil.randi;
 import static org.dreamcat.jwrap.excel.util.ExcelBuilder.sheet;
 import static org.dreamcat.jwrap.excel.util.ExcelBuilder.term;
-import static org.dreamcat.jwrap.excel.util.ExcelBuilder.workbook;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.dreamcat.jwrap.excel.BaseTest;
 import org.dreamcat.jwrap.excel.callback.FitWidthWriteCallback;
-import org.dreamcat.jwrap.excel.core.ExcelRichCell;
+import org.dreamcat.jwrap.excel.callback.LoggingWriteCallback;
+import org.dreamcat.jwrap.excel.core.ExcelCell;
 import org.dreamcat.jwrap.excel.core.ExcelSheet;
 import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
-import org.dreamcat.jwrap.excel.core.ExcelWorkbookTest;
+import org.dreamcat.jwrap.excel.core.IExcelWorkbook;
 import org.dreamcat.jwrap.excel.style.ExcelFont;
-import org.dreamcat.jwrap.excel.style.ExcelRichStyle;
+import org.dreamcat.jwrap.excel.style.ExcelStyle;
+import org.dreamcat.jwrap.excel.util.ExcelBuilder.SheetTerm;
 import org.junit.Test;
 
 
 /**
  * Create by tuke on 2020/7/22
  */
-public class ExcelBuilderTest {
+public class ExcelBuilderTest implements BaseTest {
 
-    public static ExcelSheet headerSheet() {
-        return sheet("Sheet Header")
+    public static SheetTerm headerSheet() {
+        return sheet("Sheet Header", null)
                 // col1
                 .richCell(term("A1:A2"), 0, 0, 2, 1)
                 .height(24)
@@ -65,12 +67,12 @@ public class ExcelBuilderTest {
                 .richCell("F2", 1, 5)
                 .height(8)
                 .fgColor(IndexedColors.PALE_BLUE.getIndex())
-                .finishCell()
-                .finishSheet();
+                .finishCell();
     }
 
     @Test
     public void testSmall() throws Exception {
+        ExcelWorkbook<ExcelSheet> book = new ExcelWorkbook<>();
         ExcelSheet sheet = new ExcelSheet("Sheet One");
 
         IndexedColors[] colors = new IndexedColors[]{
@@ -85,33 +87,33 @@ public class ExcelBuilderTest {
             font.setBold(i % 2 == 0);
             font.setItalic(i % 3 == 0);
             font.setColor(colors[randi(128) % 4].getIndex());
+            book.registerFont(font);
 
-            ExcelRichStyle style = new ExcelRichStyle();
+            ExcelStyle style = new ExcelStyle();
             style.setFgColor(IndexedColors.ROSE.getIndex());
-            // style.setHorizontalAlignment(HorizontalAlignment.CENTER);
-            // style.setVerticalAlignment(VerticalAlignment.CENTER);
+            style.setHorizontalAlignment(HorizontalAlignment.CENTER);
+            style.setVerticalAlignment(VerticalAlignment.CENTER);
+            book.registerStyle(style);
 
-            sheet.getCells().add(new ExcelRichCell(
+            sheet.getCells().add(new ExcelCell(
                     term(rand() * (1 << 10)),
-                    i, 0, 1, 1,
-                    font, style, null));
+                    i, 0, 1, 1)
+                    .fontIndex(font.getIndex())
+                    .styleIndex(style.getIndex()));
         }
         sheet.setWriteCallback(new FitWidthWriteCallback());
 
-        ExcelWorkbook<ExcelSheet> book = new ExcelWorkbook<>();
-        book.add(sheet);
+        book.addSheet(sheet);
         book.writeTo("/Users/tuke/Downloads/book.xlsx");
     }
 
     @Test
     public void test() throws Exception {
-        ExcelSheet headerSheet = headerSheet();
-        ExcelWorkbookTest.printVerbose(headerSheet);
-
-        // headerSheet.setWriteCallback(new LoggingWriteCallback());
-        ExcelWorkbook<ExcelSheet> book = workbook()
-                .addSheet(headerSheet)
-                .finish();
-        book.writeTo("/Users/tuke/Downloads/book.xlsx");
+        SheetTerm sheetTerm = headerSheet();
+        IExcelWorkbook<?> book = sheetTerm.finishBook();
+        ExcelSheet headerSheet = sheetTerm.finish();
+        headerSheet.setWriteCallback(new LoggingWriteCallback());
+        printSheetVerbose(headerSheet, book);
+        writeXlsx("book_ExcelBuilderTest_test", headerSheet);
     }
 }

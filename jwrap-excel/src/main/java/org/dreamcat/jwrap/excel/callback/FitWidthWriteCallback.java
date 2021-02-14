@@ -16,10 +16,15 @@ public class FitWidthWriteCallback implements IExcelWriteCallback {
 
     @Override
     public void onFinishCell(Workbook workbook, Sheet sheet, int sheetIndex, Row row, Cell cell,
-            IExcelContent content, CellStyle style, Font font) {
+            IExcelContent content, CellStyle style) {
         double px = 1;
-        if (font != null) {
-            px = font.getFontHeightInPoints() / 12.;
+        if (style != null) {
+            int fontIndex = style.getFontIndex();
+            int fontNum = workbook.getNumberOfFonts();
+            if (fontIndex >= 0 && fontIndex < fontNum) {
+                Font font = workbook.getFontAt(fontIndex);
+                px = font.getFontHeightInPoints() / 12.;
+            }
         }
 
         int charNum = content.toString().length();

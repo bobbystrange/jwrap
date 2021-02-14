@@ -9,13 +9,15 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import org.dreamcat.common.util.ObjectUtil;
 import org.dreamcat.common.util.ReflectUtil;
 import org.dreamcat.jwrap.excel.content.ExcelUnionContent;
 import org.dreamcat.jwrap.excel.content.IExcelContent;
-import org.dreamcat.jwrap.excel.map.XlsMeta.Cell;
 import org.dreamcat.jwrap.excel.core.IExcelCell;
 import org.dreamcat.jwrap.excel.core.IExcelSheet;
+import org.dreamcat.jwrap.excel.core.IExcelWorkbook;
+import org.dreamcat.jwrap.excel.map.XlsMeta.Cell;
 import org.dreamcat.jwrap.excel.style.ExcelFont;
 import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
@@ -27,12 +29,20 @@ import org.dreamcat.jwrap.excel.style.ExcelStyle;
 public class AnnotationRowSheet implements IExcelSheet {
 
     private final Map<Class, MetaCacheLine> metaMap = new HashMap<>();
+    @Setter
     private String name;
+    @Setter
+    private IExcelWorkbook<?> workbook;
     private Object scheme;
     private XlsMeta meta;
     private List<Integer> indexes;
 
     public AnnotationRowSheet(Object scheme) {
+        this(scheme, null);
+    }
+
+    public AnnotationRowSheet(Object scheme, IExcelWorkbook<?> workbook) {
+        this.workbook = workbook;
         reset(scheme);
     }
 
@@ -48,13 +58,17 @@ public class AnnotationRowSheet implements IExcelSheet {
         checkMetaName(clazz);
         this.indexes = meta.getFieldIndexes();
         this.metaMap.put(clazz, new MetaCacheLine(meta, indexes));
+        if (workbook != null) {
+            workbook.registerFonts(meta.getFonts()).
+                    registerStyles(meta.getStyles());
+        }
 
         this.name = meta.name;
         this.scheme = scheme;
     }
 
     @Override
-    public Iterator<org.dreamcat.jwrap.excel.core.IExcelCell> iterator() {
+    public Iterator<IExcelCell> iterator() {
         return this.new Iter();
     }
     /// static area
@@ -74,8 +88,7 @@ public class AnnotationRowSheet implements IExcelSheet {
     }
 
     @Getter
-    class Iter extends ExcelUnionContent implements Iterator<org.dreamcat.jwrap.excel.core.IExcelCell>,
-            org.dreamcat.jwrap.excel.core.IExcelCell {
+    class Iter extends ExcelUnionContent implements Iterator<IExcelCell>, IExcelCell {
 
         XlsMeta subMeta;
         List<Integer> subIndexes;
@@ -172,12 +185,24 @@ public class AnnotationRowSheet implements IExcelSheet {
 
             schemeSize = row.size();
             schemeIndex = 0;
-            move();
+            if (schemeSize > 0) {
+                move();
+            }
         }
 
         @Override
         public IExcelContent getContent() {
             return this;
+        }
+
+        @Override
+        public int getFontIndex() {
+            return font != null ? font.getIndex() : -1;
+        }
+
+        @Override
+        public int getStyleIndex() {
+            return style != null ? style.getIndex() : -1;
         }
 
         @Override
@@ -321,6 +346,7 @@ public class AnnotationRowSheet implements IExcelSheet {
                     dynamicArrayIndex++;
                     if (dynamicArrayIndex >= dynamicArraySize) {
                         dynamicArray = null;
+                        offset = columnIndex + columnSpan;
                         schemeIndex++;
                         if (schemeIndex < schemeSize) {
                             move();
@@ -353,6 +379,7 @@ public class AnnotationRowSheet implements IExcelSheet {
                 vectorArrayIndex++;
                 if (vectorArrayIndex >= vectorArraySize) {
                     vectorArray = null;
+                    offset = columnIndex + columnSpan;
                     schemeIndex++;
                     if (schemeIndex < schemeSize) {
                         move();
@@ -484,7 +511,7 @@ public class AnnotationRowSheet implements IExcelSheet {
         private void fillFontAndStyle(Cell subCell, Cell cell) {
             if (subCell.font != null) {
                 font = subCell.font;
-            } else if (subMeta.defaultFont != null) {
+            } else if (subMeta != null && subMeta.defaultFont != null) {
                 font = subMeta.defaultFont;
             } else if (cell.font != null) {
                 font = cell.font;
@@ -494,7 +521,7 @@ public class AnnotationRowSheet implements IExcelSheet {
 
             if (subCell.style != null) {
                 style = subCell.style;
-            } else if (subMeta.defaultStyle != null) {
+            } else if (subMeta != null && subMeta.defaultStyle != null) {
                 style = subMeta.defaultStyle;
             } else if (cell.style != null) {
                 style = cell.style;

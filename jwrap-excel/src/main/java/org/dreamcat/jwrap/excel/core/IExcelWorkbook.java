@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -13,6 +15,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.dreamcat.jwrap.excel.content.ExcelPicture;
 import org.dreamcat.jwrap.excel.style.ExcelFont;
 import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
@@ -21,17 +24,76 @@ import org.dreamcat.jwrap.excel.style.ExcelStyle;
  */
 public interface IExcelWorkbook<T extends IExcelSheet> extends Iterable<T> {
 
+    @Override
+    default Iterator<T> iterator() {
+        return getSheets().iterator();
+    }
+
     List<T> getSheets();
 
-    default org.dreamcat.jwrap.excel.style.ExcelStyle getDefaultStyle() {
-        return null;
+    default IExcelWorkbook<T> addSheet(T sheet) {
+        getSheets().add(sheet);
+        return this;
     }
 
-    default org.dreamcat.jwrap.excel.style.ExcelFont getDefaultFont() {
-        return null;
+    default IExcelWorkbook<T> addSheets(Iterable<T> sheets) {
+        for (T sheet : sheets) {
+            addSheet(sheet);
+        }
+        return this;
     }
 
-    IExcelWorkbook<T> add(T sheet);
+    List<ExcelFont> getFonts();
+
+    default IExcelWorkbook<T> registerFont(ExcelFont font) {
+        List<ExcelFont> excelFonts = getFonts();
+        int index = excelFonts.size();
+        if (font.getIndex() == -1) font.setIndex(index);
+        excelFonts.add(font);
+        return this;
+    }
+
+    default IExcelWorkbook<T> registerFonts(Collection<ExcelFont> fonts) {
+        List<ExcelFont> list = getFonts();
+        int index = list.size();
+        for (ExcelFont font : fonts) {
+            if (font.getIndex() == -1) font.setIndex(index++);
+            list.add(font);
+        }
+        return this;
+    }
+
+    List<ExcelStyle> getStyles();
+
+    default IExcelWorkbook<T> registerStyle(ExcelStyle cellStyle) {
+        List<ExcelStyle> list = getStyles();
+        int index = list.size();
+        if (cellStyle.getIndex() == -1) cellStyle.setIndex(index);
+        list.add(cellStyle);
+        return this;
+    }
+
+    default IExcelWorkbook<T> registerStyles(Collection<ExcelStyle> cellStyles) {
+        List<ExcelStyle> list = getStyles();
+        int index = list.size();
+        for (ExcelStyle cellStyle : cellStyles) {
+            if (cellStyle.getIndex() == -1) cellStyle.setIndex(index++);
+            list.add(cellStyle);
+        }
+        return this;
+    }
+
+    List<ExcelPicture> getPictures();
+
+    default IExcelWorkbook<T> addPicture(ExcelPicture picture) {
+        getPictures().add(picture);
+        return this;
+    }
+
+    default IExcelWorkbook<T> addPictures(Collection<ExcelPicture> pictures) {
+        getPictures().addAll(pictures);
+        return this;
+    }
 
     default XSSFWorkbook toWorkbook() {
         return toWorkbook(new XSSFWorkbook());
@@ -46,18 +108,33 @@ public interface IExcelWorkbook<T extends IExcelSheet> extends Iterable<T> {
     }
 
     default <W extends Workbook> W toWorkbook(W workbook) {
-        Font font = workbook.createFont();
-        ExcelFont defaultFont = getDefaultFont();
-        if (defaultFont != null) defaultFont.fill(font);
-
-        CellStyle style = workbook.createCellStyle();
-        ExcelStyle defaultStyle = getDefaultStyle();
-        if (defaultStyle != null) defaultStyle.fill(style, font);
-
+        // font
+        List<ExcelFont> fonts = getFonts();
+        for (ExcelFont excelFont : fonts) {
+            Font font = workbook.createFont();
+            excelFont.fill(font);
+            // Note that it is important to justify the indices of fonts
+            excelFont.setIndex(font.getIndex());
+        }
+        // cell style
+        List<ExcelStyle> cellStyles = getStyles();
+        for (ExcelStyle excelStyle : cellStyles) {
+            // Note that it use 0-based index to index cell styles
+            CellStyle cellStyle = workbook.createCellStyle();
+            excelStyle.fill(cellStyle);
+            // Note that it is important to justify the indices of cell styles
+            excelStyle.setIndex(cellStyle.getIndex());
+        }
+        // sheet
         int sheetIndex = 0;
         for (T excelSheet : this) {
             Sheet sheet = workbook.createSheet(excelSheet.getName());
-            excelSheet.fill(workbook, sheet, sheetIndex++, style, font);
+            excelSheet.fill(workbook, sheet, sheetIndex++);
+        }
+        // picture
+        List<ExcelPicture> pictures = getPictures();
+        for (ExcelPicture picture : pictures) {
+            picture.fill(workbook);
         }
         return workbook;
     }

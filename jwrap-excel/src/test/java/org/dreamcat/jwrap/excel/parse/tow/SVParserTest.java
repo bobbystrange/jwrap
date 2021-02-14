@@ -72,10 +72,10 @@ public class SVParserTest {
             offset++;
         }
 
-        ExcelSheet sheet = sheetTerm.finishSheet();
+        ExcelSheet sheet = sheetTerm.finish();
         sheet.setWriteCallback(new AutoWidthWriteCallback());
         ExcelWorkbook<ExcelSheet> book = new ExcelWorkbook<>();
-        book.add(sheet).writeTo(book1);
+        book.addSheet(sheet).writeTo(book1);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class SVParserTest {
     }
 
     static ExcelBuilder.SheetTerm newSheetTerm() {
-        return sheet("Sheet Header")
+        return sheet("Sheet Header", null)
                 .cell("errorMessage", 2, 0)
 
                 .cell("dancer", 2, 1)

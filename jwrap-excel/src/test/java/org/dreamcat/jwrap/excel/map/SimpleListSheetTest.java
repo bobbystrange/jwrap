@@ -10,17 +10,17 @@ import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.dreamcat.jwrap.excel.BaseTest;
 import org.dreamcat.jwrap.excel.core.ExcelCell;
-import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
 import org.junit.Test;
 
 /**
  * Create by tuke on 2020/7/22
  */
-public class SimpleListSheetTest {
+public class SimpleListSheetTest implements BaseTest {
 
     @Test
-    public void testSmall() throws Exception {
+    public void testSmall() {
         SimpleListSheet sheet = new SimpleListSheet("Sheet One");
         sheet.add(new ExcelCell(term("A1:C2"), 0, 0, 2, 3));
         sheet.add(new ExcelCell(term("D1:D3"), 0, 3, 3, 1));
@@ -39,9 +39,7 @@ public class SimpleListSheetTest {
         sheet.add(new Pojo(3, rand(), null, choose72(6)));
         sheet.add(new Pojo(4, rand() * (1 << 16), null, choose72(2)));
 
-        ExcelWorkbook<SimpleListSheet> book = new ExcelWorkbook<>();
-        book.getSheets().add(sheet);
-        book.writeTo("/Users/tuke/Downloads/book.xlsx");
+        writeXlsx("SimpleListSheetTest_testSmall", sheet);
     }
 
     @Test
@@ -85,13 +83,11 @@ public class SimpleListSheetTest {
         }
         sheet.addAll(pojoList);
 
-        ExcelWorkbook<SimpleListSheet> book = new ExcelWorkbook<>();
-        book.getSheets().add(sheet);
-        book.writeTo("/Users/tuke/Downloads/book.xlsx");
+        writeXlsx("SimpleListSheetTest_test", sheet);
     }
 
     @Test
-    public void testHuge() throws Exception {
+    public void testHuge() {
         //Thread.sleep(30_000);
 
         SimpleListSheet sheet = new SimpleListSheet("Sheet One");
@@ -109,9 +105,7 @@ public class SimpleListSheetTest {
         }
         sheet.addAll(pojoList);
 
-        ExcelWorkbook<SimpleListSheet> book = new ExcelWorkbook<>();
-        book.getSheets().add(sheet);
-        book.writeToWithBigGrid("/Users/tuke/Downloads/book.xlsx");
+        writeXlsxWithBigGrid("SimpleListSheetTest_testHuge", sheet);
     }
 
     @Data

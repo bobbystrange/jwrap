@@ -10,12 +10,15 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.dreamcat.jwrap.excel.BaseTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Create by tuke on 2020/8/13
  */
-public class WorkbookTest {
+@Ignore
+public class WorkbookTest implements BaseTest {
 
     public static void read(File excelFile) throws IOException {
         try (Workbook workbook = WorkbookFactory.create(excelFile)) {
@@ -122,7 +125,7 @@ public class WorkbookTest {
             String sheetName = sheet.getName();
             System.out.printf("%dth sheet [%s]\n",
                     sheetIndex, sheetName);
-            ExcelWorkbookTest.printVerbose(sheet);
+            printSheetVerbose(sheet, book);
             System.out.println();
         }
 

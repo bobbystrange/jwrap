@@ -1,9 +1,8 @@
 package org.dreamcat.jwrap.excel.core;
 
 import org.dreamcat.jwrap.excel.content.IExcelContent;
-import org.dreamcat.jwrap.excel.style.ExcelFont;
+import org.dreamcat.jwrap.excel.style.ExcelComment;
 import org.dreamcat.jwrap.excel.style.ExcelHyperLink;
-import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
 /**
  * Create by tuke on 2020/7/22
@@ -18,7 +17,7 @@ public interface IExcelCell {
         return 1;
     }
 
-    default void setRowSpan(int i) {
+    default void setRowSpan(int rowSpan) {
         throw new UnsupportedOperationException();
     }
 
@@ -26,21 +25,25 @@ public interface IExcelCell {
         return 1;
     }
 
-    default void setColumnSpan(int i) {
+    default void setColumnSpan(int columnSpan) {
         throw new UnsupportedOperationException();
     }
 
     IExcelContent getContent();
 
-    default ExcelStyle getStyle() {
-        return null;
+    default int getFontIndex() {
+        return -1;
     }
 
-    default ExcelFont getFont() {
-        return null;
+    default int getStyleIndex() {
+        return -1;
     }
 
     default ExcelHyperLink getHyperLink() {
+        return null;
+    }
+
+    default ExcelComment getComment() {
         return null;
     }
 

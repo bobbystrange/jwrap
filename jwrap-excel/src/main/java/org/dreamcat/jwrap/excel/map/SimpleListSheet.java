@@ -40,18 +40,17 @@ public class SimpleListSheet implements IExcelSheet {
         schemes.addAll(scheme);
     }
 
-    public void add(org.dreamcat.jwrap.excel.core.IExcelCell cell) {
+    public void add(IExcelCell cell) {
         schemes.add(cell);
     }
 
     @Override
-    public Iterator<org.dreamcat.jwrap.excel.core.IExcelCell> iterator() {
+    public Iterator<IExcelCell> iterator() {
         return this.new Iter();
     }
 
     @Getter
-    private class Iter extends ExcelUnionContent implements Iterator<org.dreamcat.jwrap.excel.core.IExcelCell>,
-            org.dreamcat.jwrap.excel.core.IExcelCell {
+    private class Iter extends ExcelUnionContent implements Iterator<IExcelCell>, IExcelCell {
 
         // as row index offset since row based structure
         int offset;
@@ -63,8 +62,8 @@ public class SimpleListSheet implements IExcelSheet {
         int columnIndex;
 
         // only not null if scheme is a IExcelCell
-        org.dreamcat.jwrap.excel.core.IExcelCell cell;
-        org.dreamcat.jwrap.excel.core.IExcelCell nextCell;
+        IExcelCell cell;
+        IExcelCell nextCell;
         int maxRowOffset;
 
         private Iter() {
@@ -141,7 +140,7 @@ public class SimpleListSheet implements IExcelSheet {
         }
 
         @Override
-        public org.dreamcat.jwrap.excel.core.IExcelCell next() {
+        public IExcelCell next() {
             if (!hasNext()) throw new NoSuchElementException();
 
             // in cell case scheme
@@ -209,7 +208,7 @@ public class SimpleListSheet implements IExcelSheet {
         }
 
         private void setRow(Object rawRow) {
-            if (rawRow instanceof org.dreamcat.jwrap.excel.core.IExcelCell) {
+            if (rawRow instanceof IExcelCell) {
                 nextCell = (IExcelCell) rawRow;
                 row = null;
             } else if (rawRow instanceof List) {

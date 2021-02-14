@@ -14,6 +14,7 @@ import org.dreamcat.jwrap.excel.annotation.XlsFont;
 @Data
 public class ExcelFont {
 
+    private int index = -1;
     private String name;
     private boolean bold;
     private boolean italic;
@@ -38,8 +39,22 @@ public class ExcelFont {
      * @see Font#COLOR_RED
      */
     private short color;
-    // font height in points
+    // font height in points, such as 10 or 14 or 28
     private short height;
+
+    public static ExcelFont from(Font font) {
+        ExcelFont excelFont = new ExcelFont();
+        excelFont.setIndex(font.getIndex());
+        excelFont.setName(font.getFontName());
+        excelFont.setBold(font.getBold());
+        excelFont.setItalic(font.getItalic());
+        excelFont.setUnderline(font.getUnderline());
+        excelFont.setStrikeout(font.getStrikeout());
+        excelFont.setTypeOffset(font.getTypeOffset());
+        excelFont.setColor(font.getColor());
+        excelFont.setHeight(font.getFontHeightInPoints());
+        return excelFont;
+    }
 
     public static ExcelFont from(Workbook workbook, CellStyle style) {
         Font font;
@@ -51,16 +66,7 @@ public class ExcelFont {
             return null;
         }
 
-        ExcelFont excelFont = new ExcelFont();
-        excelFont.setName(font.getFontName());
-        excelFont.setBold(font.getBold());
-        excelFont.setItalic(font.getItalic());
-        excelFont.setUnderline(font.getUnderline());
-        excelFont.setStrikeout(font.getStrikeout());
-        excelFont.setTypeOffset(font.getTypeOffset());
-        excelFont.setColor(font.getColor());
-        excelFont.setHeight(font.getFontHeightInPoints());
-        return excelFont;
+        return from(font);
     }
 
     public static ExcelFont from(XlsFont xlsFont) {

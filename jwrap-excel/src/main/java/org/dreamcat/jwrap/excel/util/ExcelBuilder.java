@@ -7,19 +7,17 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.dreamcat.common.x.asm.BeanCopierUtil;
+import org.dreamcat.jwrap.excel.content.ExcelBooleanContent;
 import org.dreamcat.jwrap.excel.content.ExcelNumericContent;
 import org.dreamcat.jwrap.excel.content.ExcelStringContent;
 import org.dreamcat.jwrap.excel.content.IExcelContent;
 import org.dreamcat.jwrap.excel.core.ExcelCell;
-import org.dreamcat.jwrap.excel.core.ExcelRichCell;
-import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
-import org.dreamcat.jwrap.excel.content.ExcelBooleanContent;
 import org.dreamcat.jwrap.excel.core.ExcelSheet;
+import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
 import org.dreamcat.jwrap.excel.core.IExcelCell;
+import org.dreamcat.jwrap.excel.core.IExcelWorkbook;
 import org.dreamcat.jwrap.excel.style.ExcelFont;
 import org.dreamcat.jwrap.excel.style.ExcelHyperLink;
-import org.dreamcat.jwrap.excel.style.ExcelRichStyle;
 import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
 /**
@@ -30,12 +28,12 @@ public final class ExcelBuilder {
     private ExcelBuilder() {
     }
 
-    public static SheetTerm sheet(String sheetName) {
-        return new SheetTerm(new org.dreamcat.jwrap.excel.core.ExcelSheet(sheetName));
+    public static SheetTerm sheet(String sheetName, IExcelWorkbook<?> book) {
+        return new SheetTerm(new ExcelSheet(sheetName), book);
     }
 
     public static WorkbookTerm workbook() {
-        ExcelWorkbook<org.dreamcat.jwrap.excel.core.ExcelSheet> book = new ExcelWorkbook<>();
+        ExcelWorkbook<ExcelSheet> book = new ExcelWorkbook<>();
         return new WorkbookTerm(book);
     }
 
@@ -51,12 +49,12 @@ public final class ExcelBuilder {
         } else if (value instanceof IExcelContent) {
             return (IExcelContent) value;
         } else {
-            return new ExcelStringContent(value == null ? "" : value.toString());
+            return ExcelStringContent.from(value == null ? "" : value.toString());
         }
     }
 
     public static IExcelContent term(String string) {
-        return new ExcelStringContent(string);
+        return ExcelStringContent.from(string);
     }
 
     public static IExcelContent term(double number) {
@@ -75,12 +73,36 @@ public final class ExcelBuilder {
     }
 
     @RequiredArgsConstructor
+    public static class WorkbookTerm {
+
+        private final ExcelWorkbook<ExcelSheet> book;
+
+        public WorkbookTerm sheet(SheetTerm sheetTerm) {
+            return sheet(sheetTerm.finish());
+        }
+
+        public WorkbookTerm sheet(ExcelSheet sheet) {
+            book.getSheets().add(sheet);
+            return this;
+        }
+
+        public ExcelWorkbook<ExcelSheet> finish() {
+            return book;
+        }
+    }
+
+    @RequiredArgsConstructor
     public static class SheetTerm {
 
-        private final org.dreamcat.jwrap.excel.core.ExcelSheet sheet;
+        private final ExcelSheet sheet;
+        private final IExcelWorkbook<?> book;
 
-        public org.dreamcat.jwrap.excel.core.ExcelSheet finishSheet() {
+        public ExcelSheet finish() {
             return sheet;
+        }
+
+        public IExcelWorkbook<?> finishBook() {
+            return book;
         }
 
         public SheetTerm cell(IExcelCell cell) {
@@ -116,290 +138,267 @@ public final class ExcelBuilder {
             return this;
         }
 
-        public RichSheetTerm richCell(String string, int rowIndex, int columnIndex) {
+        public CellTerm richCell(String string, int rowIndex, int columnIndex) {
             return richCell(term(string), rowIndex, columnIndex, 1, 1);
         }
 
-        public RichSheetTerm richCell(double number, int rowIndex, int columnIndex) {
+        public CellTerm richCell(double number, int rowIndex, int columnIndex) {
             return richCell(term(number), rowIndex, columnIndex, 1, 1);
         }
 
-        public RichSheetTerm richCell(IExcelContent term, int rowIndex, int columnIndex) {
+        public CellTerm richCell(IExcelContent term, int rowIndex, int columnIndex) {
             return richCell(term, rowIndex, columnIndex, 1, 1);
         }
 
-        public RichSheetTerm richCell(String string, int rowIndex, int columnIndex, int rowSpan,
+        public CellTerm richCell(String string, int rowIndex, int columnIndex, int rowSpan,
                 int columnSpan) {
             return richCell(term(string), rowIndex, columnIndex, rowSpan, columnSpan);
         }
 
-        public RichSheetTerm richCell(double number, int rowIndex, int columnIndex, int rowSpan,
+        public CellTerm richCell(double number, int rowIndex, int columnIndex, int rowSpan,
                 int columnSpan) {
             return richCell(term(number), rowIndex, columnIndex, rowSpan, columnSpan);
         }
 
-        public RichSheetTerm richCell(IExcelContent term, int rowIndex, int columnIndex,
+        public CellTerm richCell(IExcelContent term, int rowIndex, int columnIndex,
                 int rowSpan, int columnSpan) {
-            ExcelRichCell cell = new ExcelRichCell(term, rowIndex, columnIndex, rowSpan,
+            ExcelCell cell = new ExcelCell(term, rowIndex, columnIndex, rowSpan,
                     columnSpan);
             sheet.getCells().add(cell);
-            return new RichSheetTerm(this, cell);
+            return new CellTerm(this, cell);
         }
     }
 
-    public static class RichSheetTerm {
+    public static class CellTerm {
 
         private final SheetTerm sheetTerm;
-        private final ExcelRichCell cell;
-        private org.dreamcat.jwrap.excel.style.ExcelFont font;
-        private org.dreamcat.jwrap.excel.style.ExcelStyle style;
-        private org.dreamcat.jwrap.excel.style.ExcelRichStyle richStyle;
+        private final IExcelWorkbook<?> book;
+        private final ExcelCell cell;
+        private ExcelFont font;
+        private ExcelStyle style;
 
-        public RichSheetTerm(SheetTerm sheetTerm, ExcelRichCell cell) {
+        public CellTerm(SheetTerm sheetTerm, ExcelCell cell) {
             this.sheetTerm = sheetTerm;
+            this.book = sheetTerm.book;
             this.cell = cell;
         }
 
         public SheetTerm finishCell() {
-            if (richStyle != null) cell.setStyle(richStyle);
-            else if (style != null) cell.setStyle(style);
-            if (font != null) cell.setFont(font);
+
+            if (book != null) {
+                if (style != null) {
+                    book.registerStyle(style);
+                    cell.styleIndex(style.getIndex());
+                }
+                if (font != null) {
+                    book.registerFont(font);
+                    cell.fontIndex(font.getIndex());
+                }
+            }
+
             return sheetTerm;
         }
 
-        public RichSheetTerm hyperLink(String address) {
+        public CellTerm hyperLink(String address) {
             return hyperLink(address, null);
         }
 
-        public RichSheetTerm hyperLink(String address, String label) {
+        public CellTerm hyperLink(String address, String label) {
             return hyperLink(address, label, HyperlinkType.URL);
         }
 
-        public RichSheetTerm hyperLink(String address, String label, HyperlinkType type) {
-            cell.setHyperLink(new ExcelHyperLink(type, address, label));
+        public CellTerm hyperLink(String address, String label, HyperlinkType type) {
+            cell.hyperLink(new ExcelHyperLink(type, address, label));
             return this;
         }
 
-        public RichSheetTerm bold() {
+        public CellTerm bold() {
             return bold(true);
         }
 
-        public RichSheetTerm bold(boolean bold) {
+        public CellTerm bold(boolean bold) {
             getFont().setBold(bold);
             return this;
         }
 
-        public RichSheetTerm italic() {
+        public CellTerm italic() {
             return italic(true);
         }
 
-        public RichSheetTerm italic(boolean italic) {
+        public CellTerm italic(boolean italic) {
             getFont().setItalic(italic);
             return this;
         }
 
-        public RichSheetTerm underline() {
+        public CellTerm underline() {
             return underline(Font.U_SINGLE);
         }
 
-        public RichSheetTerm underline(byte underline) {
+        public CellTerm underline(byte underline) {
             getFont().setUnderline(underline);
             return this;
         }
 
-        public RichSheetTerm strikeout() {
+        public CellTerm strikeout() {
             return strikeout(true);
         }
 
-        public RichSheetTerm strikeout(boolean strikeout) {
+        public CellTerm strikeout(boolean strikeout) {
             getFont().setStrikeout(strikeout);
             return this;
         }
 
-        public RichSheetTerm typeOffset() {
+        public CellTerm typeOffset() {
             return typeOffset(Font.SS_NONE);
         }
 
-        public RichSheetTerm typeOffset(short typeOffset) {
+        public CellTerm typeOffset(short typeOffset) {
             getFont().setTypeOffset(typeOffset);
             return this;
         }
 
-        public RichSheetTerm color() {
+        public CellTerm color() {
             return color(Font.COLOR_NORMAL);
         }
 
-        public RichSheetTerm color(short color) {
+        public CellTerm color(short color) {
             getFont().setColor(color);
             return this;
         }
 
-        public RichSheetTerm height(int height) {
+        public CellTerm height(int height) {
             getFont().setHeight((short) height);
             return this;
         }
 
-        public RichSheetTerm horizontalAlignment(HorizontalAlignment horizontalAlignment) {
+        public CellTerm horizontalAlignment(HorizontalAlignment horizontalAlignment) {
             getStyle().setHorizontalAlignment(horizontalAlignment);
             return this;
         }
 
-        public RichSheetTerm verticalAlignment(VerticalAlignment verticalAlignment) {
+        public CellTerm verticalAlignment(VerticalAlignment verticalAlignment) {
             getStyle().setVerticalAlignment(verticalAlignment);
             return this;
         }
 
-        public RichSheetTerm hidden() {
+        public CellTerm hidden() {
             return hidden(true);
         }
 
-        public RichSheetTerm hidden(boolean hidden) {
+        public CellTerm hidden(boolean hidden) {
             getStyle().setHidden(hidden);
             return this;
         }
 
-        public RichSheetTerm wrapText() {
+        public CellTerm wrapText() {
             return wrapText(true);
         }
 
-        public RichSheetTerm wrapText(boolean wrapText) {
+        public CellTerm wrapText(boolean wrapText) {
             getStyle().setWrapText(wrapText);
             return this;
         }
 
-        public RichSheetTerm locked() {
+        public CellTerm locked() {
             return locked(true);
         }
 
-        public RichSheetTerm locked(boolean locked) {
+        public CellTerm locked(boolean locked) {
             getStyle().setLocked(locked);
             return this;
         }
 
-        public RichSheetTerm quotePrefix() {
+        public CellTerm quotePrefix() {
             return quotePrefix(true);
         }
 
-        public RichSheetTerm quotePrefix(boolean quotePrefix) {
+        public CellTerm quotePrefix(boolean quotePrefix) {
             getStyle().setQuotePrefix(quotePrefix);
             return this;
         }
 
-        public RichSheetTerm shrinkToFit() {
+        public CellTerm shrinkToFit() {
             return shrinkToFit(true);
         }
 
-        public RichSheetTerm shrinkToFit(boolean shrinkToFit) {
+        public CellTerm shrinkToFit(boolean shrinkToFit) {
             getStyle().setShrinkToFit(shrinkToFit);
             return this;
         }
 
         // ---- ---- ---- ----    ---- ---- ---- ----    ---- ---- ---- ----
 
-        public RichSheetTerm rotation(short rotation) {
-            getRichStyle().setRotation(rotation);
+        public CellTerm rotation(short rotation) {
+            getStyle().setRotation(rotation);
             return this;
         }
 
-        public RichSheetTerm bgColor(short bgColor) {
-            getRichStyle().setBgColor(bgColor);
+        public CellTerm bgColor(short bgColor) {
+            getStyle().setBgColor(bgColor);
             return this;
         }
 
-        public RichSheetTerm fgColor(short fgColor) {
-            getRichStyle().setFgColor(fgColor);
+        public CellTerm fgColor(short fgColor) {
+            getStyle().setFgColor(fgColor);
             return this;
         }
 
-        public RichSheetTerm fillPattern(FillPatternType fillPatternType) {
-            getRichStyle().setFillPattern(fillPatternType);
+        public CellTerm fillPattern(FillPatternType fillPatternType) {
+            getStyle().setFillPattern(fillPatternType);
             return this;
         }
 
-        public RichSheetTerm borderBottom(BorderStyle borderBottom) {
-            getRichStyle().setBorderBottom(borderBottom);
+        public CellTerm borderBottom(BorderStyle borderBottom) {
+            getStyle().setBorderBottom(borderBottom);
             return this;
         }
 
-        public RichSheetTerm borderLeft(BorderStyle borderLeft) {
-            getRichStyle().setBorderLeft(borderLeft);
+        public CellTerm borderLeft(BorderStyle borderLeft) {
+            getStyle().setBorderLeft(borderLeft);
             return this;
         }
 
-        public RichSheetTerm borderTop(BorderStyle borderTop) {
-            getRichStyle().setBorderTop(borderTop);
+        public CellTerm borderTop(BorderStyle borderTop) {
+            getStyle().setBorderTop(borderTop);
             return this;
         }
 
-        public RichSheetTerm borderRight(BorderStyle borderRight) {
-            getRichStyle().setBorderRight(borderRight);
+        public CellTerm borderRight(BorderStyle borderRight) {
+            getStyle().setBorderRight(borderRight);
             return this;
         }
 
-        public RichSheetTerm bottomBorderColor(short bottomBorderColor) {
-            getRichStyle().setBottomBorderColor(bottomBorderColor);
+        public CellTerm bottomBorderColor(short bottomBorderColor) {
+            getStyle().setBottomBorderColor(bottomBorderColor);
             return this;
         }
 
-        public RichSheetTerm leftBorderColor(short leftBorderColor) {
-            getRichStyle().setLeftBorderColor(leftBorderColor);
+        public CellTerm leftBorderColor(short leftBorderColor) {
+            getStyle().setLeftBorderColor(leftBorderColor);
             return this;
         }
 
-        public RichSheetTerm topBorderColor(short topBorderColor) {
-            getRichStyle().setTopBorderColor(topBorderColor);
+        public CellTerm topBorderColor(short topBorderColor) {
+            getStyle().setTopBorderColor(topBorderColor);
             return this;
         }
 
-        public RichSheetTerm rightBorderColor(short rightBorderColor) {
-            getRichStyle().setRightBorderColor(rightBorderColor);
+        public CellTerm rightBorderColor(short rightBorderColor) {
+            getStyle().setRightBorderColor(rightBorderColor);
             return this;
         }
 
         // ---- ---- ---- ----    ---- ---- ---- ----    ---- ---- ---- ----
 
-        private org.dreamcat.jwrap.excel.style.ExcelFont getFont() {
-            if (font == null) {
-                font = new ExcelFont();
-            }
+        private ExcelFont getFont() {
+            if (font == null) font = new ExcelFont();
             return font;
         }
 
-        private org.dreamcat.jwrap.excel.style.ExcelStyle getStyle() {
-            if (richStyle != null) return richStyle;
-            if (style != null) return style;
-            style = new ExcelStyle();
+        private ExcelStyle getStyle() {
+            if (style == null) style = new ExcelStyle();
             return style;
         }
-
-        private org.dreamcat.jwrap.excel.style.ExcelRichStyle getRichStyle() {
-            if (richStyle == null) {
-                if (style == null) {
-                    richStyle = new org.dreamcat.jwrap.excel.style.ExcelRichStyle();
-                } else {
-                    richStyle = BeanCopierUtil.copy(style, ExcelRichStyle.class);
-                    style = null;
-                }
-            }
-            return richStyle;
-        }
-
-    }
-
-    @RequiredArgsConstructor
-    public static class WorkbookTerm {
-
-        private final ExcelWorkbook<org.dreamcat.jwrap.excel.core.ExcelSheet> book;
-
-        public WorkbookTerm addSheet(org.dreamcat.jwrap.excel.core.ExcelSheet sheet) {
-            book.getSheets().add(sheet);
-            return this;
-        }
-
-        public ExcelWorkbook<ExcelSheet> finish() {
-            return book;
-        }
-
     }
 
 }

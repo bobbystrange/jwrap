@@ -2,7 +2,6 @@ package org.dreamcat.jwrap.excel.callback;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -34,7 +33,7 @@ public class LoggingWriteCallback implements IExcelWriteCallback {
 
     @Override
     public void onFinishCell(Workbook workbook, Sheet sheet, int sheetIndex, Row row, Cell cell,
-            IExcelContent content, CellStyle style, Font font) {
+            IExcelContent content, CellStyle style) {
         System.out.printf("onFinishCell:\t %s \t %s\n%s\n%s\n\n", sheet.getSheetName(),
                 IExcelContent.from(cell),
                 ExcelFont.from(workbook, style),

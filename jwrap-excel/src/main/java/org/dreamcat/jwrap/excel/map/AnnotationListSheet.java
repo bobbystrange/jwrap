@@ -9,9 +9,8 @@ import lombok.Setter;
 import org.dreamcat.jwrap.excel.content.IExcelContent;
 import org.dreamcat.jwrap.excel.core.IExcelCell;
 import org.dreamcat.jwrap.excel.core.IExcelSheet;
+import org.dreamcat.jwrap.excel.core.IExcelWorkbook;
 import org.dreamcat.jwrap.excel.core.IExcelWriteCallback;
-import org.dreamcat.jwrap.excel.style.ExcelFont;
-import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
 /**
  * Create by tuke on 2020/7/26
@@ -22,16 +21,24 @@ import org.dreamcat.jwrap.excel.style.ExcelStyle;
  */
 @Getter
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class AnnotationListSheet implements org.dreamcat.jwrap.excel.core.IExcelSheet {
+public class AnnotationListSheet implements IExcelSheet {
 
     private final String name;
+    /**
+     * Register fonts and cell styles to workbook, set it before the iteration
+     * <p>
+     * Note that it maybe create more than 64000 cell styles on one sheet,
+     * that will cause a error
+     */
+    @Setter
+    private IExcelWorkbook<?> workbook;
     // [Sheet..., T1..., Sheet..., T2...], it mixes Sheet & Pojo up
     private final List schemes;
-    // Note that it maybe create more than 64000 cell styles on one sheet, that will not work
+    // Note that it maybe create more than 64000 cell styles on one sheet, that will cause a error
     @Setter
     private boolean annotationStyle;
     @Setter
-    private org.dreamcat.jwrap.excel.core.IExcelWriteCallback writeCallback;
+    private IExcelWriteCallback writeCallback;
 
     public AnnotationListSheet(String name) {
         this(name, new ArrayList<>(0));
@@ -50,12 +57,12 @@ public class AnnotationListSheet implements org.dreamcat.jwrap.excel.core.IExcel
         schemes.addAll(scheme);
     }
 
-    public void add(org.dreamcat.jwrap.excel.core.IExcelSheet sheet) {
+    public void addSheet(IExcelSheet sheet) {
         schemes.add(sheet);
     }
 
     @Override
-    public Iterator<org.dreamcat.jwrap.excel.core.IExcelCell> iterator() {
+    public Iterator<IExcelCell> iterator() {
         return this.new Iter();
     }
 
@@ -65,17 +72,17 @@ public class AnnotationListSheet implements org.dreamcat.jwrap.excel.core.IExcel
     }
 
     @Getter
-    private class Iter implements Iterator<org.dreamcat.jwrap.excel.core.IExcelCell>,
-            org.dreamcat.jwrap.excel.core.IExcelCell {
+    private class Iter implements Iterator<IExcelCell>,
+            IExcelCell {
 
         // as row index offset since row based structure
         int offset;
         int schemeSize;
         int schemeIndex;
 
-        org.dreamcat.jwrap.excel.core.IExcelCell cell;
+        IExcelCell cell;
         int maxRowOffset;
-        Iterator<org.dreamcat.jwrap.excel.core.IExcelCell> iterator;
+        Iterator<IExcelCell> iterator;
         // whether next is in row sheet iter case or not
         boolean nextInRowSheetIterCase;
         // just switch row sheet to iterator
@@ -114,15 +121,15 @@ public class AnnotationListSheet implements org.dreamcat.jwrap.excel.core.IExcel
         }
 
         @Override
-        public ExcelStyle getStyle() {
-            if ((nextInRowSheetIterCase || inSwitchIterCase) && !annotationStyle) return null;
-            return cell.getStyle();
+        public int getStyleIndex() {
+            if ((nextInRowSheetIterCase || inSwitchIterCase) && !annotationStyle) return -1;
+            return cell.getStyleIndex();
         }
 
         @Override
-        public ExcelFont getFont() {
-            if ((nextInRowSheetIterCase || inSwitchIterCase) && !annotationStyle) return null;
-            return cell.getFont();
+        public int getFontIndex() {
+            if ((nextInRowSheetIterCase || inSwitchIterCase) && !annotationStyle) return -1;
+            return cell.getFontIndex();
         }
 
         @Override
@@ -174,12 +181,13 @@ public class AnnotationListSheet implements org.dreamcat.jwrap.excel.core.IExcel
 
             inSwitchIterCase = nextInRowSheetIterCase;
             Object rawScheme = schemes.get(schemeIndex);
-            if (rawScheme instanceof org.dreamcat.jwrap.excel.core.IExcelSheet) {
+            if (rawScheme instanceof IExcelSheet) {
                 iterator = ((IExcelSheet) rawScheme).iterator();
                 nextInRowSheetIterCase = false;
             } else {
                 if (rowSheetIter == null) {
-                    rowSheetIter = new AnnotationRowSheet(rawScheme).new Iter();
+                    AnnotationRowSheet rowSheet = new AnnotationRowSheet(rawScheme, workbook);
+                    rowSheetIter = rowSheet.new Iter();
                 } else {
                     rowSheetIter.reset(rawScheme);
                 }
