@@ -17,6 +17,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.dreamcat.jwrap.excel.content.IExcelContent;
 import org.dreamcat.jwrap.excel.style.ExcelComment;
 import org.dreamcat.jwrap.excel.style.ExcelHyperLink;
+import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
 /**
  * Create by tuke on 2020/7/20
@@ -33,7 +34,7 @@ public class ExcelSheet implements IExcelSheet {
         this.cells = new ArrayList<>();
     }
 
-    public static ExcelSheet from(Sheet sheet) {
+    public static ExcelSheet from(Sheet sheet, ExcelWorkbook<?> excelWorkbook) {
         ExcelSheet excelSheet = new ExcelSheet(sheet.getSheetName());
 
         int rowNum = sheet.getPhysicalNumberOfRows();
@@ -49,7 +50,7 @@ public class ExcelSheet implements IExcelSheet {
             for (int j = start; j < end; j++) {
                 Cell cell = row.getCell(j);
                 if (cell == null) continue;
-                excelSheet.fillCellMap(cellMap, cell, i, j);
+                excelSheet.fillCellMap(cellMap, cell, i, j, excelWorkbook);
             }
         }
 
@@ -59,7 +60,7 @@ public class ExcelSheet implements IExcelSheet {
 
     private void fillCellMap(
             Map<Integer, Map<Integer, ExcelCell>> cellMap,
-            Cell cell, int i, int j) {
+            Cell cell, int i, int j, ExcelWorkbook<?> excelWorkbook) {
         IExcelContent content = IExcelContent.from(cell);
         ExcelCell excelCell = new ExcelCell(content, i, j);
 
@@ -67,14 +68,15 @@ public class ExcelSheet implements IExcelSheet {
         Hyperlink hyperlink = cell.getHyperlink();
         Comment comment = cell.getCellComment();
         if (style != null) {
-            excelCell.styleIndex(style.getIndex())
-                    .fontIndex(style.getFontIndex());
+            ExcelStyle excelStyle = excelWorkbook.reversedStyles.get(style);
+            if (excelStyle == null) throw new IllegalStateException("assertion failure");
+            excelCell.setStyle(excelStyle);
         }
         if (hyperlink != null) {
-            excelCell.hyperLink(ExcelHyperLink.from(hyperlink));
+            excelCell.setHyperLink(ExcelHyperLink.from(hyperlink));
         }
         if (comment != null) {
-            excelCell.comment(ExcelComment.from(comment));
+            excelCell.setComment(ExcelComment.from(comment));
         }
 
         cells.add(excelCell);
@@ -145,5 +147,9 @@ public class ExcelSheet implements IExcelSheet {
     @Override
     public Iterator<IExcelCell> iterator() {
         return cells.iterator();
+    }
+
+    public void addCell(IExcelCell cell) {
+        cells.add(cell);
     }
 }

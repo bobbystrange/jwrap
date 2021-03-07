@@ -30,6 +30,7 @@ public class AnnotationListSheetTest implements BaseTest {
         sheet2.addSheet(ExcelBuilderTest.headerSheet().finish());
         sheet2.add(XlsMetaTest.newPojo());
         sheet2.addSheet(ExcelBuilderTest.headerSheet().finish());
+        printSheetVerbose(sheet2);
 
         writeXlsx("AnnotationListSheetTest_testSmall", sheet1, sheet2);
     }

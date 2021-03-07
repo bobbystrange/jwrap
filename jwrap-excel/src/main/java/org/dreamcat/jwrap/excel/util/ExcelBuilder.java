@@ -15,7 +15,6 @@ import org.dreamcat.jwrap.excel.core.ExcelCell;
 import org.dreamcat.jwrap.excel.core.ExcelSheet;
 import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
 import org.dreamcat.jwrap.excel.core.IExcelCell;
-import org.dreamcat.jwrap.excel.core.IExcelWorkbook;
 import org.dreamcat.jwrap.excel.style.ExcelFont;
 import org.dreamcat.jwrap.excel.style.ExcelHyperLink;
 import org.dreamcat.jwrap.excel.style.ExcelStyle;
@@ -28,8 +27,8 @@ public final class ExcelBuilder {
     private ExcelBuilder() {
     }
 
-    public static SheetTerm sheet(String sheetName, IExcelWorkbook<?> book) {
-        return new SheetTerm(new ExcelSheet(sheetName), book);
+    public static SheetTerm sheet(String sheetName) {
+        return new SheetTerm(new ExcelSheet(sheetName));
     }
 
     public static WorkbookTerm workbook() {
@@ -95,14 +94,9 @@ public final class ExcelBuilder {
     public static class SheetTerm {
 
         private final ExcelSheet sheet;
-        private final IExcelWorkbook<?> book;
 
         public ExcelSheet finish() {
             return sheet;
-        }
-
-        public IExcelWorkbook<?> finishBook() {
-            return book;
         }
 
         public SheetTerm cell(IExcelCell cell) {
@@ -172,30 +166,22 @@ public final class ExcelBuilder {
     public static class CellTerm {
 
         private final SheetTerm sheetTerm;
-        private final IExcelWorkbook<?> book;
         private final ExcelCell cell;
         private ExcelFont font;
         private ExcelStyle style;
 
         public CellTerm(SheetTerm sheetTerm, ExcelCell cell) {
             this.sheetTerm = sheetTerm;
-            this.book = sheetTerm.book;
             this.cell = cell;
         }
 
         public SheetTerm finishCell() {
-
-            if (book != null) {
-                if (style != null) {
-                    book.registerStyle(style);
-                    cell.styleIndex(style.getIndex());
-                }
-                if (font != null) {
-                    book.registerFont(font);
-                    cell.fontIndex(font.getIndex());
-                }
+            if (style == null && font == null) {
+                return sheetTerm;
             }
-
+            if (style == null) style = new ExcelStyle();
+            if (font != null) style.setFont(font);
+            cell.setStyle(style);
             return sheetTerm;
         }
 
@@ -208,7 +194,7 @@ public final class ExcelBuilder {
         }
 
         public CellTerm hyperLink(String address, String label, HyperlinkType type) {
-            cell.hyperLink(new ExcelHyperLink(type, address, label));
+            cell.setHyperLink(new ExcelHyperLink(type, address, label));
             return this;
         }
 

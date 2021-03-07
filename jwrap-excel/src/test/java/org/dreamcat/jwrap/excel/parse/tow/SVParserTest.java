@@ -112,7 +112,7 @@ public class SVParserTest {
     }
 
     static ExcelBuilder.SheetTerm newSheetTerm() {
-        return sheet("Sheet Header", null)
+        return sheet("Sheet Cell")
                 .cell("errorMessage", 2, 0)
 
                 .cell("dancer", 2, 1)

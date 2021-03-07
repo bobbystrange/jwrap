@@ -1,0 +1,13 @@
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+version '0.1'
+
+dependencies {
+    implementation project(":jwrap-conv")
+    implementation "org.dreamcat:common-core:$COMMON_VERSION"
+
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+}

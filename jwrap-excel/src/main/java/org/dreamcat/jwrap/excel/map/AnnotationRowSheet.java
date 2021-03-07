@@ -16,9 +16,7 @@ import org.dreamcat.jwrap.excel.content.ExcelUnionContent;
 import org.dreamcat.jwrap.excel.content.IExcelContent;
 import org.dreamcat.jwrap.excel.core.IExcelCell;
 import org.dreamcat.jwrap.excel.core.IExcelSheet;
-import org.dreamcat.jwrap.excel.core.IExcelWorkbook;
 import org.dreamcat.jwrap.excel.map.XlsMeta.Cell;
-import org.dreamcat.jwrap.excel.style.ExcelFont;
 import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
 /**
@@ -31,18 +29,11 @@ public class AnnotationRowSheet implements IExcelSheet {
     private final Map<Class, MetaCacheLine> metaMap = new HashMap<>();
     @Setter
     private String name;
-    @Setter
-    private IExcelWorkbook<?> workbook;
     private Object scheme;
     private XlsMeta meta;
     private List<Integer> indexes;
 
     public AnnotationRowSheet(Object scheme) {
-        this(scheme, null);
-    }
-
-    public AnnotationRowSheet(Object scheme, IExcelWorkbook<?> workbook) {
-        this.workbook = workbook;
         reset(scheme);
     }
 
@@ -58,11 +49,6 @@ public class AnnotationRowSheet implements IExcelSheet {
         checkMetaName(clazz);
         this.indexes = meta.getFieldIndexes();
         this.metaMap.put(clazz, new MetaCacheLine(meta, indexes));
-        if (workbook != null) {
-            workbook.registerFonts(meta.getFonts()).
-                    registerStyles(meta.getStyles());
-        }
-
         this.name = meta.name;
         this.scheme = scheme;
     }
@@ -129,7 +115,6 @@ public class AnnotationRowSheet implements IExcelSheet {
         int columnIndex;
         int rowSpan;
         int columnSpan;
-        ExcelFont font;
         ExcelStyle style;
 
         Iter() {
@@ -196,13 +181,8 @@ public class AnnotationRowSheet implements IExcelSheet {
         }
 
         @Override
-        public int getFontIndex() {
-            return font != null ? font.getIndex() : -1;
-        }
-
-        @Override
-        public int getStyleIndex() {
-            return style != null ? style.getIndex() : -1;
+        public ExcelStyle getStyle() {
+            return style != null ? style : null;
         }
 
         @Override
@@ -228,16 +208,12 @@ public class AnnotationRowSheet implements IExcelSheet {
 
             if (scalar != null) {
                 // prepare data
-                if (cell.serializer == null) {
-                    setContent(scalar);
-                } else {
-                    setContent(cell.serializer.apply(scalar));
-                }
+                fillContent(scalar, cell);
                 rowIndex = 0;
                 columnIndex = offset;
                 rowSpan = maxRowSpan;
                 columnSpan = cell.span;
-                fillFontAndStyle(cell);
+                fillStyle(cell);
 
                 // move
                 scalar = null;
@@ -251,16 +227,14 @@ public class AnnotationRowSheet implements IExcelSheet {
 
             // in cell case scheme
             if (scalarArray != null) {
-                if (cell.serializer == null) {
-                    setContent(scalarArray.get(scalarArrayIndex));
-                } else {
-                    setContent(cell.serializer.apply(scalarArray.get(scalarArrayIndex)));
-                }
+                Object value = scalarArray.get(scalarArrayIndex);
+                fillContent(value, cell);
+
                 rowIndex = scalarArrayIndex;
                 columnIndex = offset;
                 rowSpan = 1;
                 columnSpan = cell.span;
-                fillFontAndStyle(cell);
+                fillStyle(cell);
 
                 // move
                 scalarArrayIndex++;
@@ -278,17 +252,13 @@ public class AnnotationRowSheet implements IExcelSheet {
 
             if (vector != null) {
                 Cell subCell = subMeta.cells.get(subIndexes.get(vectorIndex));
-
-                if (cell.serializer == null) {
-                    setContent(vector.get(vectorIndex));
-                } else {
-                    setContent(cell.serializer.apply(vector.get(vectorIndex)));
-                }
+                Object value = vector.get(vectorIndex);
+                fillContent(value, subCell);
                 rowIndex = 0;
                 columnIndex = offset++;
                 rowSpan = maxRowSpan;
                 columnSpan = subCell.span;
-                fillFontAndStyle(subCell, cell);
+                fillStyle(subCell, cell);
 
                 // move
                 vectorIndex++;
@@ -303,16 +273,13 @@ public class AnnotationRowSheet implements IExcelSheet {
             }
 
             if (dynamic != null) {
-                if (cell.serializer == null) {
-                    setContent(dynamic.get(dynamicIndex));
-                } else {
-                    setContent(cell.serializer.apply(dynamic.get(dynamicIndex)));
-                }
+                Object value = dynamic.get(dynamicIndex);
+                fillContent(value, cell);
                 rowIndex = 0;
                 columnIndex = offset++;
                 rowSpan = maxRowSpan;
                 columnSpan = cell.span;
-                fillFontAndStyle(cell, cell);
+                fillStyle(cell, cell);
 
                 // move
                 dynamicIndex++;
@@ -327,17 +294,13 @@ public class AnnotationRowSheet implements IExcelSheet {
             }
 
             if (dynamicArray != null) {
-                if (cell.serializer == null) {
-                    setContent(dynamicArray.get(dynamicArrayIndex).get(dynamicArrayColumnIndex));
-                } else {
-                    setContent(cell.serializer.apply(dynamicArray.get(dynamicArrayIndex)
-                            .get(dynamicArrayColumnIndex)));
-                }
+                Object value = dynamicArray.get(dynamicArrayIndex).get(dynamicArrayColumnIndex);
+                fillContent(value, cell);
                 rowIndex = dynamicArrayIndex;
                 columnIndex = offset + dynamicArrayColumnIndex;
                 rowSpan = 1;
                 columnSpan = cell.span;
-                fillFontAndStyle(cell, cell);
+                fillStyle(cell, cell);
 
                 // move
                 dynamicArrayColumnIndex++;
@@ -360,17 +323,13 @@ public class AnnotationRowSheet implements IExcelSheet {
             }
 
             Cell subCell = subMeta.cells.get(indexes.get(vectorArrayColumnIndex));
-            if (cell.serializer == null) {
-                setContent(vectorArray.get(vectorArrayIndex).get(vectorArrayColumnIndex));
-            } else {
-                setContent(cell.serializer
-                        .apply(vectorArray.get(vectorArrayIndex).get(vectorArrayColumnIndex)));
-            }
+            Object value = vectorArray.get(vectorArrayIndex).get(vectorArrayColumnIndex);
+            fillContent(value, subCell);
             rowIndex = vectorArrayIndex;
             columnIndex = offset + vectorArrayColumnIndex;
             rowSpan = 1;
             columnSpan = subCell.span;
-            fillFontAndStyle(subCell, cell);
+            fillStyle(subCell, cell);
 
             // move
             vectorArrayColumnIndex++;
@@ -503,22 +462,11 @@ public class AnnotationRowSheet implements IExcelSheet {
             vectorArrayColumnIndex = 0;
         }
 
-        private void fillFontAndStyle(Cell cell) {
-            font = cell.font != null ? cell.font : meta.defaultFont;
+        private void fillStyle(Cell cell) {
             style = cell.style != null ? cell.style : meta.defaultStyle;
         }
 
-        private void fillFontAndStyle(Cell subCell, Cell cell) {
-            if (subCell.font != null) {
-                font = subCell.font;
-            } else if (subMeta != null && subMeta.defaultFont != null) {
-                font = subMeta.defaultFont;
-            } else if (cell.font != null) {
-                font = cell.font;
-            } else {
-                font = meta.defaultFont;
-            }
-
+        private void fillStyle(Cell subCell, Cell cell) {
             if (subCell.style != null) {
                 style = subCell.style;
             } else if (subMeta != null && subMeta.defaultStyle != null) {
@@ -527,6 +475,14 @@ public class AnnotationRowSheet implements IExcelSheet {
                 style = cell.style;
             } else {
                 style = meta.defaultStyle;
+            }
+        }
+
+        private void fillContent(Object value, Cell cell) {
+            if (cell.serializer == null) {
+                setContent(value);
+            } else {
+                setContent(cell.serializer.apply(value));
             }
         }
     }

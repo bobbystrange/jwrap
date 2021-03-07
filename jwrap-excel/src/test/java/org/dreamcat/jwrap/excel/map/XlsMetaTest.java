@@ -24,6 +24,7 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.dreamcat.common.util.ArrayUtil;
 import org.dreamcat.common.x.asm.BeanMapUtil;
+import org.dreamcat.jwrap.excel.BaseTest;
 import org.dreamcat.jwrap.excel.annotation.XlsCell;
 import org.dreamcat.jwrap.excel.annotation.XlsFont;
 import org.dreamcat.jwrap.excel.annotation.XlsSheet;
@@ -33,7 +34,7 @@ import org.junit.Test;
 /**
  * Create by tuke on 2020/7/25
  */
-public class XlsMetaTest {
+public class XlsMetaTest implements BaseTest {
 
     public static Pojo newPojo() {
         Pojo pojo = new Pojo();
@@ -113,7 +114,10 @@ public class XlsMetaTest {
     @Test
     public void test() {
         XlsMeta metadata = XlsMeta.parse(Pojo.class, true);
-        System.out.println(pretty(metadata));
+        assert metadata != null;
+        printSheetVerbose(metadata);
+
+        writeXlsx("XlsMetaTest_test", metadata);
     }
 
     @Data
@@ -133,7 +137,7 @@ public class XlsMetaTest {
         List<Double> SA;
 
         @XlsStyle(verticalAlignment = VerticalAlignment.CENTER)
-        @XlsCell(expanded = true)
+        @XlsCell(expanded = true, subheader = true)
         @XlsFont(name = "黑体", height = 21, italic = true, indexedColor = IndexedColors.AQUA)
         Item V;
 

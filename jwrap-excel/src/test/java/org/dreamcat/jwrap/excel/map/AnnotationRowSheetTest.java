@@ -14,8 +14,6 @@ import lombok.NoArgsConstructor;
 import org.dreamcat.jwrap.excel.BaseTest;
 import org.dreamcat.jwrap.excel.annotation.XlsCell;
 import org.dreamcat.jwrap.excel.annotation.XlsSheet;
-import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
-import org.dreamcat.jwrap.excel.core.IExcelSheet;
 import org.junit.Test;
 
 /**
@@ -25,18 +23,16 @@ public class AnnotationRowSheetTest implements BaseTest {
 
     @Test
     public void test() {
-        ExcelWorkbook<IExcelSheet> book = new ExcelWorkbook<>();
-
         Pojo pojo = newPojo();
-        AnnotationRowSheet sheet = new AnnotationRowSheet(pojo, book);
-        printSheet(sheet, book);
+        AnnotationRowSheet sheet = new AnnotationRowSheet(pojo);
+        printSheetVerbose(sheet);
 
         AnnotationListSheet listSheet = new AnnotationListSheet("Sheet");
         listSheet.addSheet(sheet);
-        listSheet.addSheet(new AnnotationRowSheet(newPojo(), book));
-        listSheet.addSheet(new AnnotationRowSheet(newPojo(), book));
+        listSheet.addSheet(new AnnotationRowSheet(newPojo()));
+        listSheet.addSheet(new AnnotationRowSheet(newPojo()));
 
-        writeXlsx(book, "book_AnnotationRowSheetTest_test", listSheet);
+        writeXlsx("book_AnnotationRowSheetTest_test", listSheet);
     }
 
     public static Pojo newPojo() {

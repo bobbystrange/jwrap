@@ -1,6 +1,8 @@
 package org.dreamcat.jwrap.excel.style;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.Comment;
@@ -12,6 +14,8 @@ import org.apache.poi.ss.usermodel.Sheet;
  * Create by tuke on 2021/2/14
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExcelComment {
 
     private boolean visible;

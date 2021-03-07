@@ -10,14 +10,11 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.dreamcat.jwrap.excel.content.ExcelPicture;
-import org.dreamcat.jwrap.excel.style.ExcelFont;
-import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
 /**
  * Create by tuke on 2020/7/22
@@ -43,46 +40,6 @@ public interface IExcelWorkbook<T extends IExcelSheet> extends Iterable<T> {
         return this;
     }
 
-    List<ExcelFont> getFonts();
-
-    default IExcelWorkbook<T> registerFont(ExcelFont font) {
-        List<ExcelFont> excelFonts = getFonts();
-        int index = excelFonts.size();
-        if (font.getIndex() == -1) font.setIndex(index);
-        excelFonts.add(font);
-        return this;
-    }
-
-    default IExcelWorkbook<T> registerFonts(Collection<ExcelFont> fonts) {
-        List<ExcelFont> list = getFonts();
-        int index = list.size();
-        for (ExcelFont font : fonts) {
-            if (font.getIndex() == -1) font.setIndex(index++);
-            list.add(font);
-        }
-        return this;
-    }
-
-    List<ExcelStyle> getStyles();
-
-    default IExcelWorkbook<T> registerStyle(ExcelStyle cellStyle) {
-        List<ExcelStyle> list = getStyles();
-        int index = list.size();
-        if (cellStyle.getIndex() == -1) cellStyle.setIndex(index);
-        list.add(cellStyle);
-        return this;
-    }
-
-    default IExcelWorkbook<T> registerStyles(Collection<ExcelStyle> cellStyles) {
-        List<ExcelStyle> list = getStyles();
-        int index = list.size();
-        for (ExcelStyle cellStyle : cellStyles) {
-            if (cellStyle.getIndex() == -1) cellStyle.setIndex(index++);
-            list.add(cellStyle);
-        }
-        return this;
-    }
-
     List<ExcelPicture> getPictures();
 
     default IExcelWorkbook<T> addPicture(ExcelPicture picture) {
@@ -94,6 +51,17 @@ public interface IExcelWorkbook<T extends IExcelSheet> extends Iterable<T> {
         getPictures().addAll(pictures);
         return this;
     }
+
+    /**
+     * make a {@link CellStyle} or return a existed one
+     *
+     * @param excelCell the cell to provide the cell style
+     * @param workbook the workbook to store the cell style
+     * @return the cell style for the cell
+     */
+    CellStyle makeCellStyle(IExcelCell excelCell, Workbook workbook);
+
+    // ---- ---- ---- ----    ---- ---- ---- ----    ---- ---- ---- ----
 
     default XSSFWorkbook toWorkbook() {
         return toWorkbook(new XSSFWorkbook());
@@ -108,28 +76,11 @@ public interface IExcelWorkbook<T extends IExcelSheet> extends Iterable<T> {
     }
 
     default <W extends Workbook> W toWorkbook(W workbook) {
-        // font
-        List<ExcelFont> fonts = getFonts();
-        for (ExcelFont excelFont : fonts) {
-            Font font = workbook.createFont();
-            excelFont.fill(font);
-            // Note that it is important to justify the indices of fonts
-            excelFont.setIndex(font.getIndex());
-        }
-        // cell style
-        List<ExcelStyle> cellStyles = getStyles();
-        for (ExcelStyle excelStyle : cellStyles) {
-            // Note that it use 0-based index to index cell styles
-            CellStyle cellStyle = workbook.createCellStyle();
-            excelStyle.fill(cellStyle);
-            // Note that it is important to justify the indices of cell styles
-            excelStyle.setIndex(cellStyle.getIndex());
-        }
         // sheet
         int sheetIndex = 0;
         for (T excelSheet : this) {
             Sheet sheet = workbook.createSheet(excelSheet.getName());
-            excelSheet.fill(workbook, sheet, sheetIndex++);
+            excelSheet.fill(sheet, sheetIndex++, this);
         }
         // picture
         List<ExcelPicture> pictures = getPictures();

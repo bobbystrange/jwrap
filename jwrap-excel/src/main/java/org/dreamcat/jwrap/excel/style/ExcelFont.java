@@ -1,6 +1,7 @@
 package org.dreamcat.jwrap.excel.style;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode.Exclude;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -14,7 +15,6 @@ import org.dreamcat.jwrap.excel.annotation.XlsFont;
 @Data
 public class ExcelFont {
 
-    private int index = -1;
     private String name;
     private boolean bold;
     private boolean italic;
@@ -44,7 +44,6 @@ public class ExcelFont {
 
     public static ExcelFont from(Font font) {
         ExcelFont excelFont = new ExcelFont();
-        excelFont.setIndex(font.getIndex());
         excelFont.setName(font.getFontName());
         excelFont.setBold(font.getBold());
         excelFont.setItalic(font.getItalic());

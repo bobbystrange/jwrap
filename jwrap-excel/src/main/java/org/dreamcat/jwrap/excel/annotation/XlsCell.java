@@ -9,14 +9,13 @@ import java.lang.annotation.Target;
 /**
  * Create by tuke on 2020/7/22
  * <pre>
- *  ----    -----      ----.-----.-----      ----.-----.-----
- *                         vector/map            vector[]/map[]
- * scalar  scalar[]     sub    sub    sub     sub    sub    sub
- *  ----    -----      ----.-----.-----      ----.-----.-----
- *         scalar                          scalar scalar scalar
- * scalar  scalar    scalar scalar scalar  scalar scalar scalar
- *         scalar                          scalar scalar scalar
- *  ----    -----      ----.-----.-----      ----.-----.-----
+ *  ----    -----    ------.-----.------     -----.-----.-----
+ * scalar  scalar[]       vector/map           vector[]/map[]
+ *  ----    -----    ------.-----.------     -----.-----.-----
+ *         scalar                           scalar scalar scalar
+ * scalar  scalar    scalar scalar scalar   scalar scalar scalar
+ *         scalar                           scalar scalar scalar
+ *  ----    -----    ------.-----.------     ----.-----.-----
  * </pre>
  */
 @Target({ElementType.FIELD})
@@ -34,7 +33,4 @@ public @interface XlsCell {
 
     // expand
     boolean expanded() default false;
-
-    // component type in list/array
-    Class<?> expandedType() default Void.class;
 }

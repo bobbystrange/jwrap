@@ -5,6 +5,8 @@ import static org.dreamcat.common.util.RandomUtil.randi;
 import static org.dreamcat.jwrap.excel.util.ExcelBuilder.sheet;
 import static org.dreamcat.jwrap.excel.util.ExcelBuilder.term;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
+import org.apache.poi.ss.usermodel.ClientAnchor.AnchorType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
@@ -14,8 +16,11 @@ import org.dreamcat.jwrap.excel.callback.LoggingWriteCallback;
 import org.dreamcat.jwrap.excel.core.ExcelCell;
 import org.dreamcat.jwrap.excel.core.ExcelSheet;
 import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
-import org.dreamcat.jwrap.excel.core.IExcelWorkbook;
+import org.dreamcat.jwrap.excel.style.ExcelClientAnchor;
+import org.dreamcat.jwrap.excel.style.ExcelComment;
 import org.dreamcat.jwrap.excel.style.ExcelFont;
+import org.dreamcat.jwrap.excel.style.ExcelHyperLink;
+import org.dreamcat.jwrap.excel.style.ExcelRichString;
 import org.dreamcat.jwrap.excel.style.ExcelStyle;
 import org.dreamcat.jwrap.excel.util.ExcelBuilder.SheetTerm;
 import org.junit.Test;
@@ -27,7 +32,7 @@ import org.junit.Test;
 public class ExcelBuilderTest implements BaseTest {
 
     public static SheetTerm headerSheet() {
-        return sheet("Sheet Header", null)
+        return sheet("Sheet Cell")
                 // col1
                 .richCell(term("A1:A2"), 0, 0, 2, 1)
                 .height(24)
@@ -87,19 +92,26 @@ public class ExcelBuilderTest implements BaseTest {
             font.setBold(i % 2 == 0);
             font.setItalic(i % 3 == 0);
             font.setColor(colors[randi(128) % 4].getIndex());
-            book.registerFont(font);
 
             ExcelStyle style = new ExcelStyle();
             style.setFgColor(IndexedColors.ROSE.getIndex());
             style.setHorizontalAlignment(HorizontalAlignment.CENTER);
             style.setVerticalAlignment(VerticalAlignment.CENTER);
-            book.registerStyle(style);
+            style.setFont(font);
 
-            sheet.getCells().add(new ExcelCell(
+            ExcelCell cell = new ExcelCell(
                     term(rand() * (1 << 10)),
                     i, 0, 1, 1)
-                    .fontIndex(font.getIndex())
-                    .styleIndex(style.getIndex()));
+                    .setStyle(style)
+                    .setHyperLink(new ExcelHyperLink(
+                            HyperlinkType.URL, "http://marry.me", "link"))
+                    .setComment(new ExcelComment(
+                            true, "tuke",
+                            ExcelRichString.from("awesom"),
+                            new ExcelClientAnchor(AnchorType.MOVE_AND_RESIZE,
+                                    0, 0, 0, 0,
+                                    0, i, 0, i)));
+            sheet.getCells().add(cell);
         }
         sheet.setWriteCallback(new FitWidthWriteCallback());
 
@@ -110,10 +122,9 @@ public class ExcelBuilderTest implements BaseTest {
     @Test
     public void test() throws Exception {
         SheetTerm sheetTerm = headerSheet();
-        IExcelWorkbook<?> book = sheetTerm.finishBook();
         ExcelSheet headerSheet = sheetTerm.finish();
         headerSheet.setWriteCallback(new LoggingWriteCallback());
-        printSheetVerbose(headerSheet, book);
+        printSheetVerbose(headerSheet);
         writeXlsx("book_ExcelBuilderTest_test", headerSheet);
     }
 }

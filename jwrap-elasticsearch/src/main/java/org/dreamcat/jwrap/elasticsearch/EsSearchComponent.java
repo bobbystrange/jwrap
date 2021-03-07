@@ -167,7 +167,6 @@ public class EsSearchComponent {
                 .trackTotalHits(true)
                 .query(query)
                 .fetchSource(includes, excludes);
-        ;
         searchRequest.source(searchSourceBuilder);
 
         if (offset != null && limit != null) {

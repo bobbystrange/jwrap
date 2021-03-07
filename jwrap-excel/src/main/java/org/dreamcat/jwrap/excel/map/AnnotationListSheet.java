@@ -7,10 +7,11 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.dreamcat.jwrap.excel.content.IExcelContent;
+import org.dreamcat.jwrap.excel.core.ExcelSheet;
 import org.dreamcat.jwrap.excel.core.IExcelCell;
 import org.dreamcat.jwrap.excel.core.IExcelSheet;
-import org.dreamcat.jwrap.excel.core.IExcelWorkbook;
 import org.dreamcat.jwrap.excel.core.IExcelWriteCallback;
+import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
 /**
  * Create by tuke on 2020/7/26
@@ -23,15 +24,7 @@ import org.dreamcat.jwrap.excel.core.IExcelWriteCallback;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class AnnotationListSheet implements IExcelSheet {
 
-    private final String name;
-    /**
-     * Register fonts and cell styles to workbook, set it before the iteration
-     * <p>
-     * Note that it maybe create more than 64000 cell styles on one sheet,
-     * that will cause a error
-     */
-    @Setter
-    private IExcelWorkbook<?> workbook;
+    private String name;
     // [Sheet..., T1..., Sheet..., T2...], it mixes Sheet & Pojo up
     private final List schemes;
     // Note that it maybe create more than 64000 cell styles on one sheet, that will cause a error
@@ -59,6 +52,12 @@ public class AnnotationListSheet implements IExcelSheet {
 
     public void addSheet(IExcelSheet sheet) {
         schemes.add(sheet);
+    }
+
+    public void addHeader(Class<?> clazz) {
+        XlsHeaderMeta meta = XlsHeaderMeta.parse(clazz);
+        addSheet(meta);
+        this.name = meta.name;
     }
 
     @Override
@@ -121,15 +120,9 @@ public class AnnotationListSheet implements IExcelSheet {
         }
 
         @Override
-        public int getStyleIndex() {
-            if ((nextInRowSheetIterCase || inSwitchIterCase) && !annotationStyle) return -1;
-            return cell.getStyleIndex();
-        }
-
-        @Override
-        public int getFontIndex() {
-            if ((nextInRowSheetIterCase || inSwitchIterCase) && !annotationStyle) return -1;
-            return cell.getFontIndex();
+        public ExcelStyle getStyle() {
+            if ((nextInRowSheetIterCase || inSwitchIterCase) && !annotationStyle) return null;
+            return cell.getStyle();
         }
 
         @Override
@@ -186,7 +179,7 @@ public class AnnotationListSheet implements IExcelSheet {
                 nextInRowSheetIterCase = false;
             } else {
                 if (rowSheetIter == null) {
-                    AnnotationRowSheet rowSheet = new AnnotationRowSheet(rawScheme, workbook);
+                    AnnotationRowSheet rowSheet = new AnnotationRowSheet(rawScheme);
                     rowSheetIter = rowSheet.new Iter();
                 } else {
                     rowSheetIter.reset(rawScheme);

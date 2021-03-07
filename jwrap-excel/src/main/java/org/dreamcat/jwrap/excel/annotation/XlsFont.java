@@ -15,7 +15,7 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 @Inherited
 public @interface XlsFont {
 
-    String name();
+    String name() default "";
 
     boolean bold() default false;
 

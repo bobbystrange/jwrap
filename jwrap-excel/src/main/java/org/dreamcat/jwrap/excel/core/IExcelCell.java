@@ -3,6 +3,7 @@ package org.dreamcat.jwrap.excel.core;
 import org.dreamcat.jwrap.excel.content.IExcelContent;
 import org.dreamcat.jwrap.excel.style.ExcelComment;
 import org.dreamcat.jwrap.excel.style.ExcelHyperLink;
+import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
 /**
  * Create by tuke on 2020/7/22
@@ -31,12 +32,8 @@ public interface IExcelCell {
 
     IExcelContent getContent();
 
-    default int getFontIndex() {
-        return -1;
-    }
-
-    default int getStyleIndex() {
-        return -1;
+    default ExcelStyle getStyle() {
+        return null;
     }
 
     default ExcelHyperLink getHyperLink() {

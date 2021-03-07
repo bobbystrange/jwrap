@@ -4,6 +4,7 @@ import lombok.Data;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
@@ -15,7 +16,7 @@ import org.dreamcat.jwrap.excel.annotation.XlsStyle;
 @Data
 public class ExcelStyle {
 
-    private int index = -1;
+    private ExcelFont font;
     private HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
     private VerticalAlignment verticalAlignment = VerticalAlignment.CENTER;
     private boolean hidden;
@@ -47,9 +48,10 @@ public class ExcelStyle {
     private short topBorderColor = -1;
     private short rightBorderColor = -1;
 
-    public static ExcelStyle from(CellStyle style) {
+    public static ExcelStyle from(CellStyle style, Font font) {
         ExcelStyle excelStyle = new ExcelStyle();
-        excelStyle.setIndex(style.getIndex());
+        if (font != null) excelStyle.font = ExcelFont.from(font);
+
         excelStyle.setHorizontalAlignment(style.getAlignment());
         excelStyle.setVerticalAlignment(style.getVerticalAlignment());
         excelStyle.setHidden(style.getHidden());
@@ -127,7 +129,8 @@ public class ExcelStyle {
         return style;
     }
 
-    public void fill(CellStyle style) {
+    public void fill(CellStyle style, Font font) {
+        if (font != null) style.setFont(font);
         if (horizontalAlignment != null) style.setAlignment(horizontalAlignment);
         if (verticalAlignment != null) style.setVerticalAlignment(verticalAlignment);
         style.setLocked(locked);

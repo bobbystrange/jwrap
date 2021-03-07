@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.Getter;
 import org.dreamcat.common.x.asm.BeanMapUtil;
@@ -19,7 +20,7 @@ import org.dreamcat.jwrap.excel.core.IExcelSheet;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SimpleListSheet implements IExcelSheet {
 
-    private final String name;
+    private String name;
     // [Cell..., T1, Cell..., T2], it mixes Cell & Pojo up
     private final List schemes;
 
@@ -40,8 +41,14 @@ public class SimpleListSheet implements IExcelSheet {
         schemes.addAll(scheme);
     }
 
-    public void add(IExcelCell cell) {
+    public void addCell(IExcelCell cell) {
         schemes.add(cell);
+    }
+
+    public void addHeader(Class<?> clazz) {
+        XlsHeaderMeta meta = XlsHeaderMeta.parse(clazz);
+        addAll(meta.getHeaderCells());
+        this.name = meta.name;
     }
 
     @Override
@@ -211,15 +218,16 @@ public class SimpleListSheet implements IExcelSheet {
             if (rawRow instanceof IExcelCell) {
                 nextCell = (IExcelCell) rawRow;
                 row = null;
+                return;
             } else if (rawRow instanceof List) {
                 row = (List) (rawRow);
-                columnSize = row.size();
-                nextCell = null;
+            } else if (rawRow instanceof Map) {
+                row = new ArrayList(((Map<?, ?>) rawRow).values());
             } else {
                 row = BeanMapUtil.toList(rawRow);
-                columnSize = row.size();
-                nextCell = null;
             }
+            columnSize = row.size();
+            nextCell = null;
         }
 
     }

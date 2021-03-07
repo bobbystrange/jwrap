@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import org.dreamcat.common.function.ThrowableBiConsumer;
+import org.dreamcat.common.function.ThrowableConsumer;
 import org.dreamcat.jwrap.excel.core.ExcelSheet;
 import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
 import org.dreamcat.jwrap.excel.core.IExcelCell;
@@ -61,12 +62,12 @@ public interface BaseTest {
     }
 
     default void readXlsx(String prefix,
-            ThrowableBiConsumer<ExcelSheet, ExcelWorkbook<?>> callback) {
+            ThrowableConsumer<ExcelSheet> callback) {
         readExcel(prefix, "xlsx", callback);
     }
 
     default void readExcel(String prefix, String suffix,
-            ThrowableBiConsumer<ExcelSheet, ExcelWorkbook<?>> callback) {
+            ThrowableConsumer<ExcelSheet>  callback) {
         ExcelWorkbook<ExcelSheet> book;
         try {
             book = ExcelWorkbook.from(new File(baseDir, prefix + "." + suffix));
@@ -78,7 +79,7 @@ public interface BaseTest {
         List<ExcelSheet> sheets = book.getSheets();
         for (ExcelSheet sheet : sheets) {
             try {
-                callback.accept(sheet, book);
+                callback.accept(sheet);
             } catch (Exception e) {
                 e.printStackTrace();
                 return;
@@ -88,7 +89,7 @@ public interface BaseTest {
 
     /// util
 
-    default void printSheet(IExcelSheet sheet, IExcelWorkbook<?> workbook) {
+    default void printSheet(IExcelSheet sheet) {
         for (IExcelCell cell : sheet) {
             System.out.printf("[%d, %d, %d, %d] %s\n",
                     cell.getRowIndex(), cell.getColumnIndex(),
@@ -97,12 +98,13 @@ public interface BaseTest {
         }
     }
 
-    default void printSheetVerbose(IExcelSheet sheet, IExcelWorkbook<?> workbook) {
+    default void printSheetVerbose(IExcelSheet sheet) {
         for (IExcelCell cell : sheet) {
-            int fontIndex = cell.getFontIndex();
-            ExcelFont font = fontIndex == -1 ? null : workbook.getFonts().get(fontIndex);
-            int styleIndex = cell.getStyleIndex();
-            ExcelStyle style = styleIndex == -1 ? null : workbook.getStyles().get(styleIndex);
+            ExcelFont font = null;
+            ExcelStyle style = cell.getStyle();
+            if (style != null) {
+                font = style.getFont();
+            }
 
             System.out.printf("[%d, %d, %d, %d] %s\n%s\n%s\n\n",
                     cell.getRowIndex(), cell.getColumnIndex(),

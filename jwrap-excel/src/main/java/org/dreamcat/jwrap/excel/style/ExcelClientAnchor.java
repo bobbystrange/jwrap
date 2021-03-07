@@ -1,6 +1,8 @@
 package org.dreamcat.jwrap.excel.style;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.ClientAnchor.AnchorType;
 import org.apache.poi.ss.usermodel.Drawing;
@@ -9,6 +11,8 @@ import org.apache.poi.ss.usermodel.Drawing;
  * Create by tuke on 2021/2/14
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExcelClientAnchor {
 
     private AnchorType anchorType;

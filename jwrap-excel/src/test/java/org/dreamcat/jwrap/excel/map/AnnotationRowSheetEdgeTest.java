@@ -24,18 +24,17 @@ public class AnnotationRowSheetEdgeTest implements BaseTest {
 
     @Test
     public void test() {
-        ExcelWorkbook<IExcelSheet> book = new ExcelWorkbook<>();
         List<IExcelSheet> sheets = new ArrayList<>();
         List<Object> list = newPojoList();
         for (Object pojo : list) {
-            AnnotationRowSheet sheet = new AnnotationRowSheet(pojo, book);
+            AnnotationRowSheet sheet = new AnnotationRowSheet(pojo);
             sheet.setName(pojo.getClass().getSimpleName());
 
             DelegateSheet delegateSheet = new DelegateSheet(sheet);
             delegateSheet.setWriteCallback(new FitWidthWriteCallback());
             sheets.add(delegateSheet);
         }
-        writeXlsx(book, "AnnotationRowSheetEdgeTest_test",
+        writeXlsx("AnnotationRowSheetEdgeTest_test",
                 sheets.toArray(new IExcelSheet[0]));
     }
 

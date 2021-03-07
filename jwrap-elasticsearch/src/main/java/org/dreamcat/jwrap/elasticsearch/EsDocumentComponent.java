@@ -1,7 +1,11 @@
 package org.dreamcat.jwrap.elasticsearch;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchException;
@@ -65,8 +69,8 @@ public class EsDocumentComponent {
     private boolean save(String index, String id, String json, boolean upsert) {
         UpdateRequest request = new UpdateRequest(index, id)
                 .doc(json, XContentType.JSON)
+                .docAsUpsert(upsert)
                 .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
-        if (upsert) request.docAsUpsert(true);
 
         try {
             UpdateResponse response = restHighLevelClient.update(
@@ -136,6 +140,45 @@ public class EsDocumentComponent {
         } catch (IOException e) {
             throw new ElasticsearchException(e);
         }
+    }
+
+    // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
+
+    public boolean bulkInsert(String index, Map<String, String> idJsonMap) {
+        List<DocWriteRequest<?>> bulkRequests = idJsonMap.entrySet().stream()
+                .map(entry -> new IndexRequest(index)
+                        .id(entry.getKey())
+                        .source(entry.getValue(), XContentType.JSON)
+                        .opType(DocWriteRequest.OpType.CREATE)
+                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE))
+                .collect(Collectors.toList());
+        return bulk(bulkRequests);
+    }
+
+    public boolean bulkUpdate(String index, Map<String, String> idJsonMap) {
+        return bulkSave(index, idJsonMap, false);
+    }
+
+    public boolean bulkSave(String index, Map<String, String> idJsonMap) {
+        return bulkSave(index, idJsonMap, true);
+    }
+
+    public boolean bulkSave(String index, Map<String, String> idJsonMap, boolean upsert) {
+        List<DocWriteRequest<?>> bulkRequests = idJsonMap.entrySet().stream()
+                .map(entry -> new UpdateRequest(index, entry.getKey())
+                        .docAsUpsert(upsert)
+                        .doc(entry.getValue(), XContentType.JSON)
+                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE))
+                .collect(Collectors.toList());
+        return bulk(bulkRequests);
+    }
+
+    public boolean bulkDelete(String index, Collection<String> ids) {
+        List<DocWriteRequest<?>> bulkRequests = ids.stream()
+                .map(id -> new DeleteRequest(index, id)
+                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE))
+                .collect(Collectors.toList());
+        return bulk(bulkRequests);
     }
 
     public boolean bulk(List<DocWriteRequest<?>> bulkRequests) {

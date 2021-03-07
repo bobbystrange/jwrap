@@ -1,0 +1,9 @@
+POST http://192.168.1.248:9200/release_24852d915c434f6799c5e6e441337749_108_1/_search
+Content-Type: application/json
+
+{
+  "from" : 0, "size" : 10000,
+  "query": {
+    "match_all": {}
+  }
+}

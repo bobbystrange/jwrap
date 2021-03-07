@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 public @interface XlsSheet {
 
     // sheet name
-    String name();
+    String name() default "";
 
     boolean onlyAnnotated() default false;
 }

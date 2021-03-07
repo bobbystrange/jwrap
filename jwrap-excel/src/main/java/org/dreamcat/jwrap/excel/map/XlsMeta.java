@@ -20,6 +20,7 @@ import org.dreamcat.jwrap.excel.annotation.XlsSheet;
 import org.dreamcat.jwrap.excel.annotation.XlsStyle;
 import org.dreamcat.jwrap.excel.style.ExcelFont;
 import org.dreamcat.jwrap.excel.style.ExcelStyle;
+import org.dreamcat.jwrap.excel.util.InternalUtil;
 
 /**
  * Create by tuke on 2020/7/24
@@ -29,17 +30,10 @@ public class XlsMeta {
 
     // @XlsSheet
     public String name;
-    public ExcelFont defaultFont;
     public ExcelStyle defaultStyle;
-    public final Map<Integer, Cell> cells;
+    public final Map<Integer, Cell> cells = new HashMap<>();
     // transient
     List<Integer> fieldIndexes;
-    List<ExcelFont> fonts;
-    List<ExcelStyle> styles;
-
-    public XlsMeta() {
-        this.cells = new HashMap<>();
-    }
 
     public List getFieldValues(Object row) {
         Map<String, Object> fields = BeanMapUtil.toMap(row);
@@ -64,64 +58,32 @@ public class XlsMeta {
         return fieldIndexes;
     }
 
-    public synchronized List<ExcelFont> getFonts() {
-        if (fonts == null) {
-            initFontAndStyles();
+    private void setDefaultFont(XlsFont xlsFont) {
+        if (defaultStyle == null) {
+            defaultStyle = new ExcelStyle();
         }
-        return fonts;
+        defaultStyle.setFont(ExcelFont.from(xlsFont));
     }
 
-    public synchronized List<ExcelStyle> getStyles() {
-        if (styles == null) {
-            initFontAndStyles();
-        }
-        return styles;
-    }
-
-    private void initFontAndStyles() {
-        fonts = new ArrayList<>();
-        styles = new ArrayList<>();
-        if (defaultFont != null) fonts.add(defaultFont);
-        if (defaultStyle != null) styles.add(defaultStyle);
-
-        for (int fieldIndex : getFieldIndexes()) {
-            Cell cell = cells.get(fieldIndex);
-
-            ExcelFont font = cell.font;
-            if (font != null) fonts.add(font);
-
-            ExcelStyle style = cell.style;
-            if (style != null) styles.add(style);
-
-            XlsMeta expandedMeta = cell.expandedMeta;
-            if (expandedMeta != null) {
-                fonts.addAll(expandedMeta.getFonts());
-                styles.addAll(expandedMeta.getStyles());
-            }
-        }
-    }
-
-    // @XlsCell
+    /**
+     * @see XlsCell
+     */
     @Data
     public static class Cell {
 
         int fieldIndex;
         String fieldName;
-
         int span = 1;
-        boolean expanded;
 
-        ExcelFont font;
+        boolean expanded;
         ExcelStyle style;
-        // only not null if expended on a array field
-        Class<?> expandedType;
         XlsMeta expandedMeta;
 
         // format
         Function serializer;
         Function deserializer;
 
-        public Cell fillField(int fieldIndex, String fieldName) {
+        private Cell fillField(int fieldIndex, String fieldName) {
             this.fieldIndex = fieldIndex;
             // cglib behavior
             if (fieldName.length() == 1) {
@@ -129,6 +91,13 @@ public class XlsMeta {
             }
             this.fieldName = fieldName;
             return this;
+        }
+
+        private void setFont(XlsFont xlsFont) {
+            if (style == null) {
+                style = new ExcelStyle();
+            }
+            style.setFont(ExcelFont.from(xlsFont));
         }
     }
 
@@ -143,8 +112,8 @@ public class XlsMeta {
         Boolean onlyAnnotated = parseXlsSheet(meta, clazz);
         if (onlyAnnotated == null) return null;
 
-        parseXlsFont(meta, clazz);
         parseXlsStyle(meta, clazz);
+        parseXlsFont(meta, clazz);
 
         List<Field> fields = ReflectUtil.retrieveFields(clazz);
         int index = 0;
@@ -152,8 +121,8 @@ public class XlsMeta {
             Cell cell = parseXlsCell(meta, clazz, field, index, onlyAnnotated, enableExpanded);
             if (cell == null) continue;
 
-            parseXlsFont(cell, field);
             parseXlsStyle(cell, field);
+            parseXlsFont(cell, field);
             parseXlsFormat(cell, field);
             index++;
         }
@@ -161,7 +130,7 @@ public class XlsMeta {
         return meta;
     }
 
-    // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
+    // ---- ---- ---- ----    ---- ---- ---- ----    ---- ---- ---- ----
 
     // true or false to determine whether only annotated fields are processed, null to skip the parsing process
     private static Boolean parseXlsSheet(XlsMeta meta, Class<?> clazz) {
@@ -175,7 +144,7 @@ public class XlsMeta {
     private static void parseXlsFont(XlsMeta meta, Class<?> clazz) {
         XlsFont xlsFont = ReflectUtil.retrieveAnnotation(clazz, XlsFont.class);
         if (xlsFont == null) return;
-        meta.defaultFont = ExcelFont.from(xlsFont);
+        meta.setDefaultFont(xlsFont);
     }
 
     private static void parseXlsStyle(XlsMeta meta, Class<?> clazz) {
@@ -187,9 +156,7 @@ public class XlsMeta {
     private static void parseXlsFont(Cell cell, Field field) {
         XlsFont xlsFont = field.getDeclaredAnnotation(XlsFont.class);
         if (xlsFont == null) return;
-
-        ExcelFont font = ExcelFont.from(xlsFont);
-        cell.setFont(font);
+        cell.setFont(xlsFont);
     }
 
     private static void parseXlsStyle(Cell cell, Field field) {
@@ -230,10 +197,7 @@ public class XlsMeta {
             return meta.cells.computeIfAbsent(index, i -> new Cell())
                     .fillField(index, field.getName());
         }
-
-        if (xlsCell.ignored()) {
-            return null;
-        }
+        if (xlsCell.ignored()) return null;
 
         Cell cell = meta.cells.computeIfAbsent(index, i -> new Cell());
 
@@ -244,12 +208,16 @@ public class XlsMeta {
             cell.fillField(fieldIndex, field.getName());
         }
         cell.setSpan(xlsCell.span());
-        cell.setExpanded(xlsCell.expanded());
+        boolean expanded = xlsCell.expanded();
+        cell.setExpanded(expanded);
+        if (!enableExpanded || !expanded) return cell;
 
-        if (!enableExpanded || !xlsCell.expanded()) return cell;
+        Class<?> fieldClass = InternalUtil.getFieldClass(field);
+        if (Map.class.isAssignableFrom(fieldClass)) {
+            throw new IllegalArgumentException(
+                    "@XlsCell(expanded=true) cannot be applied in class " + fieldClass + " on field " + field);
+        }
 
-        Class<?> fieldClass = getFieldClass(field, xlsCell.expandedType());
-        cell.setExpandedType(fieldClass);
         if (clazz.equals(fieldClass)) {
             cell.setExpandedMeta(meta);
         } else {
@@ -261,20 +229,6 @@ public class XlsMeta {
             cell.setExpandedMeta(fieldMetadata);
         }
         return cell;
-    }
-
-    private static Class<?> getFieldClass(Field field, Class expandedType) {
-        Class<?> fieldClass = field.getType();
-        if (fieldClass.isAssignableFrom(List.class)) {
-            if (expandedType == Void.class) {
-                throw new IllegalArgumentException(
-                        "require to specify XlsCell#expandedType in List filed on field " + field);
-            }
-            fieldClass = expandedType;
-        } else if (fieldClass.isArray()) {
-            fieldClass = fieldClass.getComponentType();
-        }
-        return fieldClass;
     }
 
 }

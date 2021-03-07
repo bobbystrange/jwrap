@@ -1,0 +1,5 @@
+dependencies {
+    implementation "com.hynnet:jacob:1.18"
+    implementation "org.apache.pdfbox:pdfbox:2.0.11"
+    implementation "net.coobird:thumbnailator:0.4.8"
+}

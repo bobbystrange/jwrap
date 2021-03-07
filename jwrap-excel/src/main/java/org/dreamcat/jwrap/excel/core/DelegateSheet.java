@@ -3,7 +3,6 @@ package org.dreamcat.jwrap.excel.core;
 import java.util.Iterator;
 import lombok.Data;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  * Create by tuke on 2021/2/16
@@ -32,8 +31,8 @@ public class DelegateSheet implements IExcelSheet {
     }
 
     @Override
-    public void fill(Workbook workbook, Sheet sheet, int sheetIndex) {
-        delegate.fill(workbook, sheet, sheetIndex);
+    public void fill(Sheet sheet, int sheetIndex, IExcelWorkbook<?> excelWorkbook) {
+        delegate.fill(sheet, sheetIndex, excelWorkbook);
     }
 
     @Override

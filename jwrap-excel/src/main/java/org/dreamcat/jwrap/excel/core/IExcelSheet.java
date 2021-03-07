@@ -2,7 +2,6 @@ package org.dreamcat.jwrap.excel.core;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,7 +22,8 @@ public interface IExcelSheet extends Iterable<IExcelCell> {
         return null;
     }
 
-    default void fill(Workbook workbook, Sheet sheet, int sheetIndex) {
+    default void fill(Sheet sheet, int sheetIndex, IExcelWorkbook<?> excelWorkbook) {
+        Workbook workbook = sheet.getWorkbook();
         IExcelWriteCallback writeCallback = writeCallback();
         if (writeCallback != null) {
             writeCallback.onCreateSheet(workbook, sheet, sheetIndex);
@@ -42,7 +42,7 @@ public interface IExcelSheet extends Iterable<IExcelCell> {
             cellContent.fill(cell);
 
             // font and style
-            CellStyle style = Private.makeCellStyle(excelCell, workbook);
+            CellStyle style = excelWorkbook.makeCellStyle(excelCell, workbook);
             if (style != null) cell.setCellStyle(style);
 
             // hyperlink
@@ -90,21 +90,6 @@ public interface IExcelSheet extends Iterable<IExcelCell> {
             }
             Cell cell = row.createCell(ci);
             return Pair.of(row, cell);
-        }
-
-        private static CellStyle makeCellStyle(
-                IExcelCell excelCell, Workbook workbook) {
-            int fontIndex = excelCell.getFontIndex();
-            int styleIndex = excelCell.getStyleIndex();
-            if (styleIndex == -1) return null;
-
-            CellStyle style = workbook.getCellStyleAt(styleIndex);
-            // set font for cell style
-            if (fontIndex != -1) {
-                Font font = workbook.getFontAt(fontIndex);
-                style.setFont(font);
-            }
-            return style;
         }
     }
 }

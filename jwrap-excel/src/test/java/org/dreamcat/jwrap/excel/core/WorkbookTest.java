@@ -125,7 +125,7 @@ public class WorkbookTest implements BaseTest {
             String sheetName = sheet.getName();
             System.out.printf("%dth sheet [%s]\n",
                     sheetIndex, sheetName);
-            printSheetVerbose(sheet, book);
+            printSheetVerbose(sheet);
             System.out.println();
         }
 

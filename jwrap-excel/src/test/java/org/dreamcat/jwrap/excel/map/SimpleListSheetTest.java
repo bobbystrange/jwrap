@@ -22,19 +22,19 @@ public class SimpleListSheetTest implements BaseTest {
     @Test
     public void testSmall() {
         SimpleListSheet sheet = new SimpleListSheet("Sheet One");
-        sheet.add(new ExcelCell(term("A1:C2"), 0, 0, 2, 3));
-        sheet.add(new ExcelCell(term("D1:D3"), 0, 3, 3, 1));
-        sheet.add(new ExcelCell(term("B3:C3"), 2, 1, 1, 2));
-        sheet.add(new ExcelCell(term("A3"), 2, 0));
+        sheet.addCell(new ExcelCell(term("A1:C2"), 0, 0, 2, 3));
+        sheet.addCell(new ExcelCell(term("D1:D3"), 0, 3, 3, 1));
+        sheet.addCell(new ExcelCell(term("B3:C3"), 2, 1, 1, 2));
+        sheet.addCell(new ExcelCell(term("A3"), 2, 0));
 
         sheet.add(new Pojo(1, rand(), null, choose72(6)));
         sheet.add(new Pojo(2, rand() * (1 << 16), null, choose72(2)));
 
-        sheet.add(new ExcelCell(term("A6:B6"), 0, 0, 1, 2));
-        sheet.add(new ExcelCell(term("A7"), 1, 0, 1, 1));
-        sheet.add(new ExcelCell(term("B7:C7"), 1, 1, 1, 2));
-        sheet.add(new ExcelCell(term("C6"), 0, 2, 1, 1));
-        sheet.add(new ExcelCell(term("D6:D7"), 0, 3, 2, 1));
+        sheet.addCell(new ExcelCell(term("A6:B6"), 0, 0, 1, 2));
+        sheet.addCell(new ExcelCell(term("A7"), 1, 0, 1, 1));
+        sheet.addCell(new ExcelCell(term("B7:C7"), 1, 1, 1, 2));
+        sheet.addCell(new ExcelCell(term("C6"), 0, 2, 1, 1));
+        sheet.addCell(new ExcelCell(term("D6:D7"), 0, 3, 2, 1));
 
         sheet.add(new Pojo(3, rand(), null, choose72(6)));
         sheet.add(new Pojo(4, rand() * (1 << 16), null, choose72(2)));
@@ -46,10 +46,10 @@ public class SimpleListSheetTest implements BaseTest {
     public void test() throws Exception {
         SimpleListSheet sheet = new SimpleListSheet("Sheet One");
         // list1
-        sheet.add(new ExcelCell(term("A1:C2"), 0, 0, 2, 3));
-        sheet.add(new ExcelCell(term("D1:D3"), 0, 3, 3, 1));
-        sheet.add(new ExcelCell(term("B3:C3"), 2, 1, 1, 2));
-        sheet.add(new ExcelCell(term("A3"), 2, 0));
+        sheet.addCell(new ExcelCell(term("A1:C2"), 0, 0, 2, 3));
+        sheet.addCell(new ExcelCell(term("D1:D3"), 0, 3, 3, 1));
+        sheet.addCell(new ExcelCell(term("B3:C3"), 2, 1, 1, 2));
+        sheet.addCell(new ExcelCell(term("A3"), 2, 0));
 
         // list2
         ArrayList<Pojo> pojoList;
@@ -69,11 +69,11 @@ public class SimpleListSheetTest implements BaseTest {
         sheet.addAll(pojoList);
 
         // // list4
-        sheet.add(new ExcelCell(term("A6:B6"), 0, 0, 1, 2));
-        sheet.add(new ExcelCell(term("A7"), 1, 0, 1, 1));
-        sheet.add(new ExcelCell(term("B7:C7"), 1, 1, 1, 2));
-        sheet.add(new ExcelCell(term("C6"), 0, 2, 1, 1));
-        sheet.add(new ExcelCell(term("D6:D7"), 0, 3, 2, 1));
+        sheet.addCell(new ExcelCell(term("A6:B6"), 0, 0, 1, 2));
+        sheet.addCell(new ExcelCell(term("A7"), 1, 0, 1, 1));
+        sheet.addCell(new ExcelCell(term("B7:C7"), 1, 1, 1, 2));
+        sheet.addCell(new ExcelCell(term("C6"), 0, 2, 1, 1));
+        sheet.addCell(new ExcelCell(term("D6:D7"), 0, 3, 2, 1));
 
         // list5
         pojoList = new ArrayList<>();
@@ -92,10 +92,10 @@ public class SimpleListSheetTest implements BaseTest {
 
         SimpleListSheet sheet = new SimpleListSheet("Sheet One");
         // list1
-        sheet.add(new ExcelCell(term("A1:C2"), 0, 0, 2, 3));
-        sheet.add(new ExcelCell(term("D1:D3"), 0, 3, 3, 1));
-        sheet.add(new ExcelCell(term("B3:C3"), 2, 1, 1, 2));
-        sheet.add(new ExcelCell(term("A3"), 2, 0));
+        sheet.addCell(new ExcelCell(term("A1:C2"), 0, 0, 2, 3));
+        sheet.addCell(new ExcelCell(term("D1:D3"), 0, 3, 3, 1));
+        sheet.addCell(new ExcelCell(term("B3:C3"), 2, 1, 1, 2));
+        sheet.addCell(new ExcelCell(term("A3"), 2, 0));
 
         // list2
         ArrayList<Pojo> pojoList;

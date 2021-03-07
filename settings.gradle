@@ -4,6 +4,8 @@ rootProject.name = 'jwrap'
 include 'jwrap-excel'
 include 'jwrap-compress'
 include 'jwrap-qrcode'
+include 'jwrap-conv', 'jwrap-conv:example:pdf', 'jwrap-conv:example:jacob'
+
 // web
 include 'jwrap-jpa'
 include 'jwrap-mybatis', 'jwrap-mybatis:example'

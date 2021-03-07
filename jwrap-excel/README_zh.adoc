@@ -1,0 +1,39 @@
+= jwrap-excel
+
+**Excel** 工具包，封装**Apache POI**
+
+== 特性
+
+- Java Bean List导出
+
+[source,java]
+----
+
+----
+
+== 架构
+
+=== 概念
+
+==== `workbook`
+
+对应一个Excel文件，抽象接口：`IExcelWorkbook`
+
+包含Sheet页Sheets, 字体Fonts, 样式CellStyles, 图片Pictures等
+
+===== `sheet`
+
+对应一个Excel中的Sheet页，抽象接口：`IExcelSheet`
+
+包含单元格Cells
+
+==== `cell`
+
+对应一个Excel中的一个单元格，抽象接口：`IExcelCell`
+
+包含地址(行索引，列索引，行宽，列宽)，内容Content,
+样式CellStyle的引用，超链接Hyperlink，备注Comment等
+
+=== 渲染
+
+如需使用样式和字体，应当在`workbook`中先行声明，然后在相应的地方引用
