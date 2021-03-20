@@ -7,8 +7,8 @@ import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.dreamcat.common.io.IOUtil;
 import org.dreamcat.common.x.jackson.JacksonUtil;
-import org.dreamcat.jwrap.elasticsearch.core.EsMappingValue;
-import org.dreamcat.jwrap.elasticsearch.util.EsMappingUtil;
+import org.dreamcat.jwrap.elasticsearch.core.EsMappingParam;
+import org.dreamcat.jwrap.elasticsearch.core.EsSearchParam;
 import org.elasticsearch.ElasticsearchException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,16 +34,16 @@ public class DataController {
     @RequestMapping(value = "/{index}", method = RequestMethod.POST)
     public Object createIndex(
             @PathVariable("index") String index,
-            @RequestBody List<EsMappingValue> json) {
+            @RequestBody List<EsMappingParam> json) {
         try {
             if (esIndexComponent.existsIndex(index)) {
                 return false;
             }
             String settings = IOUtil.readAsString(
                     DataController.class.getResourceAsStream("/settings.json"));
-            Map<String, Object> mapping = EsMappingUtil.mapping(json);
-            log.info("mapping: {}", mapping);
-            return esIndexComponent.createIndex(index, mapping, settings);
+            Map<String, Object> mappings = EsMappingParam.mappings(json);
+            log.info("mappings: {}", mappings);
+            return esIndexComponent.createIndex(index, mappings, settings);
         } catch (Exception e) {
             log.error(e.getMessage());
             return e.getMessage();
@@ -128,12 +128,9 @@ public class DataController {
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     public Object search(
-            @RequestBody EsSearchValue search) {
+            @RequestBody EsSearchParam search) {
         try {
-            return esSearchComponent.search(
-                    search.getIndex(), search.getQuery(), search.getSort(),
-                    search.getOffset(), search.getLimit(),
-                    search.getIncludes(), search.getExcludes());
+            return esSearchComponent.search(search);
         } catch (ElasticsearchException e) {
             log.error(e.getMessage());
             return e.getMessage();

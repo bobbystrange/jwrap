@@ -1,13 +1,16 @@
 package org.dreamcat.jwrap.elasticsearch;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.dreamcat.common.core.Pair;
 import org.dreamcat.common.x.jackson.JacksonUtil;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -33,24 +36,32 @@ public class EsIndexComponent {
 
     private final RestHighLevelClient restHighLevelClient;
 
+    public List<String> getAllIndex() {
+        GetIndexRequest request = new GetIndexRequest("_all");
+        GetIndexResponse response;
+        try {
+            response = restHighLevelClient.indices()
+                    .get(request, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new ElasticsearchException(e);
+        }
+        return Arrays.asList(response.getIndices());
+    }
+
     public boolean createIndex(String index) {
         return createIndex(index, (String) null, null);
     }
 
     public boolean createIndex(
-            String index,
-            @Nullable Object mapping,
-            @Nullable Object settings) {
-        return createIndex(index,
-                mapping instanceof String ? (String) mapping : JacksonUtil.toJson(mapping),
-                settings instanceof String ? (String) settings : JacksonUtil.toJson(settings));
+            String index, @Nullable Map<String, Object> mappings, @Nullable String settings) {
+        return createIndex(index, JacksonUtil.toJson(mappings), settings);
     }
 
     public boolean createIndex(
-            String index, @Nullable String mapping, @Nullable String settings) {
+            String index, @Nullable String mappings, @Nullable String settings) {
         CreateIndexRequest request = new CreateIndexRequest(index);
-        if (mapping != null) {
-            request.mapping(mapping, XContentType.JSON);
+        if (mappings != null) {
+            request.mapping(mappings, XContentType.JSON);
         }
         if (settings != null) {
             request.settings(settings, XContentType.JSON);
@@ -100,11 +111,17 @@ public class EsIndexComponent {
 
     // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
 
-    public GetIndexResponse getIndex(String index) {
+    /**
+     * @param index index name
+     * @return mappings and settings
+     */
+    public Pair<String, String> getIndex(String index) {
         GetIndexRequest request = new GetIndexRequest(index);
         try {
-            return restHighLevelClient.indices()
+            GetIndexResponse response = restHighLevelClient.indices()
                     .get(request, RequestOptions.DEFAULT);
+            return Pair.of(JacksonUtil.toJson(response.getMappings()),
+                    JacksonUtil.toJson(response.getSettings()));
         } catch (IOException e) {
             throw new ElasticsearchException(e);
         }

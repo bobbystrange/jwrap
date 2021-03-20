@@ -2,40 +2,38 @@ package org.dreamcat.jwrap.elasticsearch;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.dreamcat.common.core.Pair;
+import org.dreamcat.common.core.Triple;
 import org.dreamcat.common.util.ObjectUtil;
 import org.dreamcat.common.x.jackson.JacksonUtil;
-import org.dreamcat.jwrap.elasticsearch.core.EsQueryValue;
-import org.dreamcat.jwrap.elasticsearch.core.EsSortValue;
-import org.dreamcat.jwrap.elasticsearch.util.EsQueryUtil;
+import org.dreamcat.jwrap.elasticsearch.core.EsSearchParam;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.get.MultiGetResponse;
+import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.client.core.CountResponse;
 import org.elasticsearch.common.Nullable;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
-import org.elasticsearch.search.sort.SortBuilder;
 
 /**
  * Create by tuke on 2021/1/20
@@ -61,7 +59,7 @@ public class EsSearchComponent {
     // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
 
     public Map<String, Object> get(String index, String id) {
-        return (Map<String, Object>) get(index, id, Map.class);
+        return get(index, id, Map.class);
     }
 
     public <T> T get(String index, String id, Class<T> clazz) {
@@ -72,7 +70,7 @@ public class EsSearchComponent {
             if (log.isDebugEnabled()) {
                 log.debug("get from index {}, result: {}", index, response);
             }
-            return fromGetResponse(response, clazz);
+            return parseGetResponse(response, clazz);
         } catch (IOException e) {
             throw new ElasticsearchException(e);
         }
@@ -93,7 +91,7 @@ public class EsSearchComponent {
         for (MultiGetItemResponse itemResponse : response) {
             GetResponse getResponse = itemResponse.getResponse();
             if (getResponse == null) continue;
-            Map<String, Object> item = fromGetResponse(getResponse, HashMap.class);
+            Map<String, Object> item = parseGetResponse(getResponse, HashMap.class);
             list.add(item);
         }
         return list;
@@ -113,7 +111,7 @@ public class EsSearchComponent {
         for (MultiGetItemResponse itemResponse : response) {
             GetResponse getResponse = itemResponse.getResponse();
             if (getResponse == null) continue;
-            T item = fromGetResponse(getResponse, clazz);
+            T item = parseGetResponse(getResponse, clazz);
             list.add(item);
         }
         return list;
@@ -136,7 +134,7 @@ public class EsSearchComponent {
         }
     }
 
-    private static <T> T fromGetResponse(GetResponse response, Class<T> clazz) {
+    private static <T> T parseGetResponse(GetResponse response, Class<T> clazz) {
         if (!response.isExists()) {
             return null;
         }
@@ -146,56 +144,9 @@ public class EsSearchComponent {
 
     // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
 
-    public Pair<List<Map<String, Object>>, Long> search(
-            String index,
-            List<EsQueryValue> query,
-            @Nullable List<EsSortValue> sort,
-            @Nullable Integer offset, @Nullable Integer limit,
-            @Nullable String[] includes, @Nullable String[] excludes) {
-        return search(index, EsQueryUtil.boolMust(query), EsQueryUtil.sort(sort),
-                offset, limit, includes, excludes);
+    public long count(String index) {
+        return count(index, new MatchAllQueryBuilder());
     }
-
-    public Pair<List<Map<String, Object>>, Long> search(
-            String index,
-            QueryBuilder query,
-            @Nullable List<SortBuilder<?>> sort,
-            @Nullable Integer offset, @Nullable Integer limit,
-            @Nullable String[] includes, @Nullable String[] excludes) {
-        SearchRequest searchRequest = new SearchRequest(index);
-        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder()
-                .trackTotalHits(true)
-                .query(query)
-                .fetchSource(includes, excludes);
-        searchRequest.source(searchSourceBuilder);
-
-        if (offset != null && limit != null) {
-            searchSourceBuilder.from(offset).size(limit);
-        }
-        if (ObjectUtil.isNotEmpty(sort)) {
-            for (SortBuilder<?> sortBuilder : sort) {
-                searchSourceBuilder.sort(sortBuilder);
-            }
-        }
-        try {
-            SearchResponse searchResponse = restHighLevelClient.search(
-                    searchRequest, RequestOptions.DEFAULT);
-            SearchHits searchHits = searchResponse.getHits();
-            if (searchHits == null) {
-                return Pair.of(Collections.emptyList(), 0L);
-            }
-
-            List<Map<String, Object>> hits = Arrays.stream(searchHits.getHits())
-                    .map(SearchHit::getSourceAsMap)
-                    .collect(Collectors.toList());
-            long total = searchHits.getTotalHits().value;
-            return Pair.of(hits, total);
-        } catch (IOException e) {
-            throw new ElasticsearchException(e);
-        }
-    }
-
-    // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
 
     public long count(String index, QueryBuilder query) {
         CountRequest request = new CountRequest(index).query(query);
@@ -206,6 +157,71 @@ public class EsSearchComponent {
         } catch (IOException e) {
             throw new ElasticsearchException(e);
         }
+    }
+
+    // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
+
+    public Triple<List<Map<String, Object>>, Long, String> search(EsSearchParam search) {
+        SearchRequest request = search.searchRequest();
+        try {
+            SearchResponse response = restHighLevelClient.search(
+                    request, RequestOptions.DEFAULT);
+            return parseSearchResponse(response);
+        } catch (IOException e) {
+            throw new ElasticsearchException(e);
+        }
+    }
+
+    public Triple<List<Map<String, Object>>, Long, String> scroll(String scrollId) {
+        SearchScrollRequest request = new SearchScrollRequest(scrollId);
+        try {
+            SearchResponse response = restHighLevelClient.scroll(
+                    request, RequestOptions.DEFAULT);
+            return parseSearchResponse(response);
+        } catch (IOException e) {
+            throw new ElasticsearchException(e);
+        }
+    }
+
+    public boolean clearScroll(List<String> scrollIds) {
+        ClearScrollRequest request = new ClearScrollRequest();
+        request.scrollIds(scrollIds);
+        try {
+            ClearScrollResponse response = restHighLevelClient.clearScroll(
+                    request, RequestOptions.DEFAULT);
+            return response.isSucceeded();
+        } catch (IOException e) {
+            throw new ElasticsearchException(e);
+        }
+    }
+
+    private Triple<List<Map<String, Object>>, Long, String> parseSearchResponse(
+            SearchResponse searchResponse) {
+        SearchHits searchHits = searchResponse.getHits();
+        String scrollId = searchResponse.getScrollId();
+        if (searchHits == null) {
+            return Triple.of(Collections.emptyList(), 0L, scrollId);
+        }
+
+        SearchHit[] hits = searchHits.getHits();
+        long total = searchHits.getTotalHits().value;
+
+        List<Map<String, Object>> items = new ArrayList<>(hits.length);
+        for (SearchHit hit : hits) {
+            String id = hit.getId();
+            Map<String, Object> source = hit.getSourceAsMap();
+
+            if (ObjectUtil.isEmpty(source)) {
+                items.add(Collections.singletonMap("id", id));
+                continue;
+            }
+
+            Map<String, Object> item = new HashMap<>(source.size() + 1);
+            item.put("id", hit.getId());
+            item.putAll(source);
+            items.add(item);
+        }
+        return Triple.of(items, total, scrollId);
     }
 
 }

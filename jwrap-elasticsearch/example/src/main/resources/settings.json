@@ -17,5 +17,7 @@
       }
     }
   },
-  "action.auto_create_index": false
+  "persistent": {
+    "action.auto_create_index": "false"
+  }
 }

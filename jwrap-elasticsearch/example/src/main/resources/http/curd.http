@@ -21,7 +21,7 @@ Content-Type: application/json
       "order": "DESC"
     }
   ],
-  "offset": 0,
+  "from": 0,
   "size": 2
 }
 
@@ -40,7 +40,7 @@ Content-Type: application/json
       "order": "DESC"
     }
   ],
-  "offset": 0,
+  "from": 0,
   "size": 2
 }
 

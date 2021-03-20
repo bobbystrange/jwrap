@@ -49,7 +49,7 @@ public class DynamicJpaEntity<E> {
             try {
                 return MakeClass.make(className)
                         .superClass(this.entityClass)
-                        .annotation(annotationClass, annotationMemberName, tableName)
+                        .annotation(annotationClass.getCanonicalName(), annotationMemberName, tableName)
                         .toClass();
             } catch (Exception e) {
                 throw new RuntimeException("cannot create class " + className);

@@ -3,7 +3,7 @@ package org.dreamcat.jwrap.elasticsearch;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
-import org.dreamcat.jwrap.elasticsearch.core.EsMappingValue;
+import org.dreamcat.jwrap.elasticsearch.core.EsMappingParam;
 
 /**
  * Create by tuke on 2021/1/22
@@ -12,5 +12,5 @@ import org.dreamcat.jwrap.elasticsearch.core.EsMappingValue;
 public class DataCreateParam {
 
     private Map<String, Object> value;
-    private List<EsMappingValue> mapping;
+    private List<EsMappingParam> mapping;
 }
