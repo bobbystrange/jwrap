@@ -1,7 +1,6 @@
 package org.dreamcat.jwrap.elasticsearch.core;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,9 +37,7 @@ public class EsSearchParam {
     @Nullable
     private String[] excludes;
     @Nullable
-    private Long scrollDuration;
-    @Nullable
-    private TimeUnit scrollTimeUnit;
+    private TimeValue keepAlive;
 
     public SearchRequest searchRequest() {
         QueryBuilder queryBuilder = EsQueryParam.queryBuilder(query);
@@ -63,14 +60,8 @@ public class EsSearchParam {
                 searchSourceBuilder.sort(sortBuilder);
             }
         }
-        if (scrollDuration != null) {
-            TimeValue timeValue;
-            if (scrollTimeUnit == null) {
-                timeValue = new TimeValue(scrollDuration);
-            } else {
-                timeValue = new TimeValue(scrollDuration, scrollTimeUnit);
-            }
-            searchRequest.scroll(timeValue);
+        if (keepAlive != null) {
+            searchRequest.scroll(keepAlive);
         }
         return searchRequest;
     }

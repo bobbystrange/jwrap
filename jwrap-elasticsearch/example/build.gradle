@@ -2,6 +2,7 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 dependencies {
+    // implementation "org.dreamcat:jwrap-elasticsearch:$COMMON_VERSION"
     implementation project(":jwrap-elasticsearch")
     implementation "org.dreamcat:common-x:$COMMON_VERSION"
 

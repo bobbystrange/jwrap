@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.DocWriteRequest;
@@ -32,10 +33,10 @@ import org.elasticsearch.script.Script;
  * Create by tuke on 2021/1/15
  */
 @Slf4j
+@RequiredArgsConstructor
 public class EsDocumentComponent {
 
-    @Resource
-    private RestHighLevelClient restHighLevelClient;
+    private final RestHighLevelClient restHighLevelClient;
 
     public boolean insert(String index, String id, String json) {
         IndexRequest request = new IndexRequest(index)
