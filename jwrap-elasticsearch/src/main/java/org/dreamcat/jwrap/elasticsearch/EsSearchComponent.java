@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.dreamcat.common.core.Triple;
 import org.dreamcat.common.util.ObjectUtil;
@@ -180,7 +181,7 @@ public class EsSearchComponent {
             return result;
         }
     }
-    
+
     public <T> List<T> searchAll(
             String index, int size, TimeValue keepAlive, Class<T> clazz) {
         try (ScrollIter<T> scrollIter = scrollIter(index, size, keepAlive, clazz)) {
@@ -219,8 +220,10 @@ public class EsSearchComponent {
         }
     }
 
-    public Triple<List<Map<String, Object>>, Long, String> scroll(String scrollId) {
-        SearchScrollRequest request = new SearchScrollRequest(scrollId);
+    public Triple<List<Map<String, Object>>, Long, String> scroll(
+            String scrollId, TimeValue keepAlive) {
+        SearchScrollRequest request = new SearchScrollRequest(scrollId)
+                .scroll(keepAlive);
         try {
             SearchResponse response = restHighLevelClient.scroll(
                     request, RequestOptions.DEFAULT);
@@ -230,8 +233,10 @@ public class EsSearchComponent {
         }
     }
 
-    public <T> Triple<List<T>, Long, String> scroll(String scrollId, Class<T> clazz) {
-        SearchScrollRequest request = new SearchScrollRequest(scrollId);
+    public <T> Triple<List<T>, Long, String> scroll(
+            String scrollId, TimeValue keepAlive, Class<T> clazz) {
+        SearchScrollRequest request = new SearchScrollRequest(scrollId)
+                .scroll(keepAlive);
         try {
             SearchResponse response = restHighLevelClient.scroll(
                     request, RequestOptions.DEFAULT);
@@ -299,8 +304,9 @@ public class EsSearchComponent {
         return new ScrollMapIter(index, size, keepAlive);
     }
 
+    @ToString
     @RequiredArgsConstructor
-    private class ScrollIter<T> implements Iterator<List<T>>, Closeable {
+    public class ScrollIter<T> implements Iterator<List<T>>, Closeable {
 
         final String index;
         final int size;
@@ -328,7 +334,7 @@ public class EsSearchComponent {
             Triple<List<T>, Long, String> chunk;
             if (remaining != null) {
                 scrollIds.add(scrollId);
-                chunk = EsSearchComponent.this.scroll(scrollId, clazz);
+                chunk = EsSearchComponent.this.scroll(scrollId, keepAlive, clazz);
             } else {
                 EsSearchParam esSearchParam = EsSearchParam.builder()
                         .index(index)
@@ -342,9 +348,8 @@ public class EsSearchComponent {
                 total = remaining;
                 // need scroll
                 if (remaining > size) {
-                    scrollIds = new ArrayList<>((int)(remaining / size));
+                    scrollIds = new ArrayList<>((int) (remaining / size));
                 }
-
             }
 
             List<T> list = chunk.first();
@@ -365,8 +370,9 @@ public class EsSearchComponent {
         }
     }
 
+    @ToString
     @RequiredArgsConstructor
-    private class ScrollMapIter implements Iterator<List<Map<String, Object>>>, Closeable {
+    public class ScrollMapIter implements Iterator<List<Map<String, Object>>>, Closeable {
 
         final String index;
         final int size;
@@ -381,7 +387,7 @@ public class EsSearchComponent {
 
         @Override
         public boolean hasNext() {
-            return remaining == null || remaining <= 0;
+            return remaining == null || remaining > 0;
         }
 
         @Override
@@ -393,7 +399,7 @@ public class EsSearchComponent {
             Triple<List<Map<String, Object>>, Long, String> chunk;
             if (remaining != null) {
                 scrollIds.add(scrollId);
-                chunk = EsSearchComponent.this.scroll(scrollId);
+                chunk = EsSearchComponent.this.scroll(scrollId, keepAlive);
             } else {
                 EsSearchParam esSearchParam = EsSearchParam.builder()
                         .index(index)
@@ -407,9 +413,8 @@ public class EsSearchComponent {
                 total = remaining;
                 // need scroll
                 if (remaining > size) {
-                    scrollIds = new ArrayList<>((int)(remaining / size));
+                    scrollIds = new ArrayList<>((int) (remaining / size));
                 }
-
             }
 
             List<Map<String, Object>> list = chunk.first();

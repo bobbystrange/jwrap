@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.ElasticsearchException;
@@ -167,8 +166,7 @@ public class EsDocumentComponent {
         List<DocWriteRequest<?>> bulkRequests = idJsonMap.entrySet().stream()
                 .map(entry -> new UpdateRequest(index, entry.getKey())
                         .docAsUpsert(upsert)
-                        .doc(entry.getValue(), XContentType.JSON)
-                        .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE))
+                        .doc(entry.getValue(), XContentType.JSON))
                 .collect(Collectors.toList());
         return bulk(bulkRequests);
     }

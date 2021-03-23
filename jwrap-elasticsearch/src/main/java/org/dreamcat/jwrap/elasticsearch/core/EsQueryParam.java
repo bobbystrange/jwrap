@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.dreamcat.common.util.ObjectUtil;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.MatchAllQueryBuilder;
 import org.elasticsearch.index.query.MatchPhraseQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.RangeQueryBuilder;
@@ -113,6 +114,9 @@ public class EsQueryParam {
     }
 
     public static QueryBuilder queryBuilder(List<EsQueryParam> query) {
+        if (ObjectUtil.isEmpty(query)) {
+            return new MatchAllQueryBuilder();
+        }
         return EsQueryParam.builder()
                 .children(query)
                 .build().queryBuilder();
