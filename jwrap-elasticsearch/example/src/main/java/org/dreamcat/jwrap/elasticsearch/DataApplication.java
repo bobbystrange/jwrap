@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 
 /**
  * Create by tuke on 2021/1/15
+ * -Dspring.elasticsearch.rest.uris=http://192.168.1.255:9200
  */
 @SpringBootApplication
 public class DataApplication {
