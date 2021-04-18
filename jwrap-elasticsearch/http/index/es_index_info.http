@@ -1,0 +1,30 @@
+###
+GET {{es}}/_aliases
+Authorization: Basic {{username}} {{password}}
+
+###
+GET {{es}}/_aliases?pretty=true
+Authorization: Basic {{username}} {{password}}
+
+###
+# pass index name as pattern
+GET {{es}}/_cat/indices/*
+Authorization: Basic {{username}} {{password}}
+
+###
+GET {{es}}/_cat/indices?v
+Authorization: Basic {{username}} {{password}}
+
+#### #### ####    #### #### ####    #### #### ####
+
+###
+HEAD {{es}}/{{index}}
+Authorization: Basic {{username}} {{password}}
+
+###
+GET {{es}}/{{index}}
+Authorization: Basic {{username}} {{password}}
+
+###
+GET {{es}}/{{index}}/_mapping
+Authorization: Basic {{username}} {{password}}

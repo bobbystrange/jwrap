@@ -1,0 +1,40 @@
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/search.html
+
+### match_all
+POST {{es}}/{{index}}/_search
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "from": 0,
+  "size": 10000,
+  "query": {
+    "match_all": {}
+  },
+  "_source": true
+}
+
+#### #### ####    #### #### ####    #### #### ####
+
+###
+# match_phrase
+POST {{es}}/{{index}}/_search
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match_phrase" : {
+            "{{field_name}}" : {
+              "query": {{field_value}},
+              "slop": 0
+            }
+          }
+        }
+      ]
+    }
+  }
+}

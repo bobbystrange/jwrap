@@ -1,0 +1,43 @@
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/docs.html
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-get.html
+
+###
+GET {{es}}/{{index}}/_doc/{{id}}
+Authorization: Basic {{username}} {{password}}
+
+###
+HEAD {{es}}/{{index}}/_doc/{{id}}
+Authorization: Basic {{username}} {{password}}
+
+###
+GET {{es}}/{{index}}/_doc/{{id}}?_source=false
+Authorization: Basic {{username}} {{password}}
+
+#### #### ####    #### #### ####    #### #### ####
+
+###
+# _source_includes={{source_includes}}
+# _source_excludes={{source_excludes}}
+POST {{es}}/{{index}}/_mget
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "ids": [
+    "{{id}}"
+  ]
+}
+
+###
+POST {{es}}/_mget
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "doc": [
+    {
+      "_index": "{{index}}",
+      "_id": "{{id}}"
+    }
+  ]
+}

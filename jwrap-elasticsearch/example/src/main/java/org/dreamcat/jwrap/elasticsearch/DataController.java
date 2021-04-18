@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.dreamcat.common.core.Triple;
 import org.dreamcat.common.io.IOUtil;
 import org.dreamcat.common.x.jackson.JacksonUtil;
 import org.dreamcat.jwrap.elasticsearch.core.EsMappingParam;
@@ -130,7 +131,8 @@ public class DataController {
     public Object search(
             @RequestBody EsSearchParam search) {
         try {
-            return esSearchComponent.search(search);
+            Triple<List<Map<String, Object>>, Long, String> result = esSearchComponent.search(search);
+            return JacksonUtil.toJson(result.first());
         } catch (ElasticsearchException e) {
             log.error(e.getMessage());
             return e.getMessage();

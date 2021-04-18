@@ -1,0 +1,7 @@
+###
+DELETE {{es}}/{{index}}
+Authorization: Basic {{username}} {{password}}
+
+###
+DELETE {{es}}/{{index_pattern}}
+Authorization: Basic {{username}} {{password}}

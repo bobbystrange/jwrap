@@ -1,9 +1,0 @@
-POST {{es}}/animal/_mget?_source_includes=name,code,color
-Content-Type: application/json
-
-{
-  "ids": [
-    "tom01",
-    "jerry02"
-  ]
-}

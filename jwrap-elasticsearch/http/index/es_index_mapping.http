@@ -1,0 +1,7 @@
+###
+PUT {{es}}/{{index}}/_mapping
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+< ./mapping_with_analyzer.json
+

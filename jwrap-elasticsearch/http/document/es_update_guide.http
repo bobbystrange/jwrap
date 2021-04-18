@@ -1,0 +1,113 @@
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update.html
+
+# index=guide_docs_update
+
+#### #### ####    #### #### ####    #### #### ####
+
+###
+# add a doc
+PUT {{es}}/{{index}}/_doc/1
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "counter" : 1,
+  "tags" : ["red"]
+}
+
+###
+# increment the counter via script
+POST {{es}}/{{index}}/_update/1
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "script" : {
+    "source": "ctx._source.counter += params.count",
+    "lang": "painless",
+    "params" : {
+      "count" : 4
+    }
+  }
+}
+
+###
+# add a tag to the list of tags
+POST {{es}}/{{index}}/_update/1
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "script": {
+    "source": "ctx._source.tags.add(params.tag)",
+    "lang": "painless",
+    "params": {
+      "tag": "blue"
+    }
+  }
+}
+
+###
+# remove a tag from the list of tags
+POST {{es}}/{{index}}/_update/1
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "script": {
+    "source": "if (ctx._source.tags.contains(params.tag)) { ctx._source.tags.remove(ctx._source.tags.indexOf(params.tag)) }",
+    "lang": "painless",
+    "params": {
+      "tag": "blue"
+    }
+  }
+}
+
+###
+# add a new field from a document
+POST {{es}}/{{index}}/_update/1
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "script" : "ctx._source.new_field = 'value_of_new_field'"
+}
+
+###
+# remove a field from a document
+POST {{es}}/{{index}}/_update/1
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "script" : "ctx._source.remove('new_field')"
+}
+
+###
+# use statement
+POST {{es}}/{{index}}/_update/1
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "script": {
+    "source": "if (ctx._source.tags.contains(params.tag)) { ctx.op = 'delete' } else { ctx.op = 'none' }",
+    "lang": "painless",
+    "params": {
+      "tag": "green"
+    }
+  }
+}
+
+###
+# partial update adds a new field to the existing document
+# updates that don’t change anything will return "result": "noop"
+POST {{es}}/{{index}}/_update/1
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "doc": {
+    "name": "new_name"
+  }
+}

@@ -1,8 +1,0 @@
-###
-POST {{es}}/animal/_count
-Content-Type: application/json
-
-###
-HEAD {{es}}/ass
-Content-Type: application/json
-

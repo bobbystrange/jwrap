@@ -1,0 +1,20 @@
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html
+
+###
+DELETE {{es}}/{{index}}/_doc/{{id}}
+Authorization: Basic {{username}} {{password}}
+
+#### #### ####    #### #### ####    #### #### ####
+
+###
+DELETE {{es}}/{{index}}/_delete_by_query
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "{{field_name}}": "{{field_value}}"
+    }
+  }
+}

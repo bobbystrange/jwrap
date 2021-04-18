@@ -1,0 +1,25 @@
+###
+HEAD {{es}}
+Authorization: Basic {{username}} {{password}}
+
+###
+GET {{es}}
+Authorization: Basic {{username}} {{password}}
+
+#### #### ####    #### #### ####    #### #### ####
+
+###
+GET {{es}}/_cat/nodes?v=true&h=heap.current
+Authorization: Basic {{username}} {{password}}
+
+#### #### ####    #### #### ####    #### #### ####
+
+###
+GET {{es}}/_cat/shards
+Authorization: Basic {{username}} {{password}}
+
+#### #### ####    #### #### ####    #### #### ####
+
+###
+GET {{es}}/_cluster/state?pretty&filter_nodes=true&filter_routing_table=true&filter_indices={{index}}
+Authorization: Basic {{username}} {{password}}

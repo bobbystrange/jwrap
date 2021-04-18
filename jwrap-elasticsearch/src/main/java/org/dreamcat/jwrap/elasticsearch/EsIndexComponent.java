@@ -13,9 +13,13 @@ import org.dreamcat.common.x.jackson.JacksonUtil;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.open.OpenIndexRequest;
+import org.elasticsearch.action.admin.indices.open.OpenIndexResponse;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.CloseIndexRequest;
+import org.elasticsearch.client.indices.CloseIndexResponse;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;
@@ -186,4 +190,25 @@ public class EsIndexComponent {
         restHighLevelClient.reindexAsync(request, RequestOptions.DEFAULT, listener);
     }
 
+    // ==== ==== ==== ====    ==== ==== ==== ====    ==== ==== ==== ====
+
+    public boolean openIndex(String index) {
+        OpenIndexRequest request = new OpenIndexRequest(index);
+        try {
+            OpenIndexResponse response = restHighLevelClient.indices().open(request, RequestOptions.DEFAULT);
+            return response.isAcknowledged();
+        } catch (IOException e) {
+            throw new ElasticsearchException(e);
+        }
+    }
+
+    public boolean closeIndex(String index) {
+        CloseIndexRequest request = new CloseIndexRequest(index);
+        try {
+            CloseIndexResponse response = restHighLevelClient.indices().close(request, RequestOptions.DEFAULT);
+            return response.isAcknowledged();
+        } catch (IOException e) {
+            throw new ElasticsearchException(e);
+        }
+    }
 }

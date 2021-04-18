@@ -9,3 +9,4 @@ out
 .gradle
 build
 .DS_Store
+http-client.private.env.json

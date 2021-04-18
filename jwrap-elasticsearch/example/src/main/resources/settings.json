@@ -12,12 +12,11 @@
         "max_gram": 1,
         "token_chars": [
           "letter",
-          "digit"
+          "digit",
+          "symbol",
+          "punctuation"
         ]
       }
     }
-  },
-  "persistent": {
-    "action.auto_create_index": "false"
   }
 }

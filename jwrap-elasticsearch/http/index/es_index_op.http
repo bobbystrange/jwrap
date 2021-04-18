@@ -1,0 +1,8 @@
+
+###
+POST {{es}}/{{index}}/_close
+Authorization: Basic {{username}} {{password}}
+
+###
+POST {{es}}/{{index}}/_open
+Authorization: Basic {{username}} {{password}}

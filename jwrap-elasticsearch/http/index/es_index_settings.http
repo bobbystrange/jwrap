@@ -1,0 +1,8 @@
+###
+# add a custom analyzer to the index which must have no custom analyzer before
+PUT {{es}}/{{index}}
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+< ./settings_with_analyzer.json
+

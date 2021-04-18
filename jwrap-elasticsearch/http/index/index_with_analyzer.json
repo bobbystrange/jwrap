@@ -1,0 +1,43 @@
+{
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        },
+        "analyzer": "my_analyzer"
+      },
+      "id": {
+        "type": "keyword"
+      },
+      "timestamp": {
+        "type": "long"
+      }
+    }
+  },
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "my_analyzer": {
+          "tokenizer": "my_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "my_tokenizer": {
+          "type": "ngram",
+          "min_gram": 1,
+          "max_gram": 1,
+          "token_chars": [
+            "letter",
+            "digit",
+            "symbol",
+            "punctuation"
+          ]
+        }
+      }
+    }
+  }
+}

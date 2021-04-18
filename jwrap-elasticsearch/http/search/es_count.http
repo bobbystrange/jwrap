@@ -1,0 +1,10 @@
+###
+POST {{es}}/{{index}}/_count
+Authorization: Basic {{username}} {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  }
+}
