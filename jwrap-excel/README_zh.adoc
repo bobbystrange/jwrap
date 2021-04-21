@@ -1,31 +1,50 @@
 = jwrap-excel
 
+https://github.com/bobbystrange/jwrap/blob/master/jwrap-excel/README.adoc[README] | https://github.com/bobbystrange/jwrap/blob/master/jwrap-excel/README_zh.adoc[简体中文]
+
 **Excel** 工具包，封装**Apache POI**
 
 == 特性
 
 - Java Bean List导出
 
+https://github.com/bobbystrange/jwrap/blob/master/jwrap-excel/src/test/java/org/dreamcat/jwrap/excel/demo/SimpleListDemo.java[SimpleListDemo.java]
+
 [source,java]
 ----
+// 定义一个空的Sheet页，名字为：Sheet One
+SimpleListSheet sheet = new SimpleListSheet("Sheet One");
 
+// 添加带样式的头部行，基于Pojo类及其字段的注解生成
+sheet.addHeader(Pojo.class);
+
+// 添加多个数据行，基于Pojo对象的各个字段，展开成多列
+List<Pojo> pojoList = Arrays.asList(new Pojo(), new Pojo());
+sheet.addAll(pojoList);
+
+// 添加一个数据行
+sheet.add(new Pojo());
+
+// 写入到Excel文件
+String excelFile = System.getenv("HOME") + "/Downloads/SimpleListDemo.xlsx";
+new ExcelWorkbook<>().addSheet(sheet).writeTo(excelFile);
 ----
 
 == 架构
 
 === 概念
 
-==== `workbook`
+==== `Workbook`
 
 对应一个Excel文件，抽象接口：`IExcelWorkbook`
 
-包含Sheet页Sheets, 字体Fonts, 样式CellStyles, 图片Pictures等
+包含Sheet页(Sheets)、字体(Fonts)、样式(CellStyles)、图片(Pictures)等
 
-===== `sheet`
+===== `Sheet`
 
 对应一个Excel中的Sheet页，抽象接口：`IExcelSheet`
 
-包含单元格Cells
+包含单元格(Cells)
 
 ==== `cell`
 

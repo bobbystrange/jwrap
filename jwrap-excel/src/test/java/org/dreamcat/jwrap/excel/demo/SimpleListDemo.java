@@ -1,18 +1,15 @@
 package org.dreamcat.jwrap.excel.demo;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import lombok.Data;
 import org.apache.poi.ss.usermodel.IndexedColors;
-import org.dreamcat.jwrap.excel.annotation.XlsCell;
 import org.dreamcat.jwrap.excel.annotation.XlsHeader;
 import org.dreamcat.jwrap.excel.annotation.XlsSheet;
 import org.dreamcat.jwrap.excel.annotation.XlsStyle;
 import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
-import org.dreamcat.jwrap.excel.core.IExcelSheet;
 import org.dreamcat.jwrap.excel.map.SimpleListSheet;
 
 /**
@@ -39,24 +36,16 @@ public class SimpleListDemo {
     public static void main(String[] args) throws IOException {
         // build a empty sheet called "Sheet One"
         SimpleListSheet sheet = new SimpleListSheet("Sheet One");
-        // add a header row to the sheet
+        // add a styled header row to the sheet
         sheet.addHeader(Pojo.class);
-        // build some data
-        List<Pojo> list = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            list.add(new Pojo());
-        }
         // add many rows to the sheet
-        sheet.addAll(list);
+        List<Pojo> pojoList = Arrays.asList(new Pojo(), new Pojo());
+        sheet.addAll(pojoList);
         // add one row to the sheet
         sheet.add(new Pojo());
 
-        // build a empty workbook
-        ExcelWorkbook<IExcelSheet> book = new ExcelWorkbook<>();
-        // attach sheet to workbook
-        book.addSheet(sheet);
-        // write data to local file
-        File baseDir = new File(System.getenv("HOME"), "Downloads");
-        book.writeTo(new File(baseDir, "SimpleListDemo.xlsx"));
+        // write data to a local excel file
+        String excelFile = System.getenv("HOME") + "/Downloads/SimpleListDemo.xlsx";
+        new ExcelWorkbook<>().addSheet(sheet).writeTo(excelFile);
     }
 }

@@ -1,0 +1,57 @@
+= jwrap-excel
+
+https://github.com/bobbystrange/jwrap/blob/master/jwrap-excel/README.adoc[README] | https://github.com/bobbystrange/jwrap/blob/master/jwrap-excel/README_zh.adoc[简体中文]
+
+**Excel** Tools，Wrapped for **Apache POI**
+
+== Features
+
+- export from Java Bean List
+
+https://github.com/bobbystrange/jwrap/blob/master/jwrap-excel/src/test/java/org/dreamcat/jwrap/excel/demo/SimpleListDemo.java[SimpleListDemo.java]
+
+[source,java]
+----
+// build a empty sheet called "Sheet One"
+SimpleListSheet sheet = new SimpleListSheet("Sheet One");
+
+// add a styled header row to the sheet
+sheet.addHeader(Pojo.class);
+
+// add many rows to the sheet
+List<Pojo> pojoList = Arrays.asList(new Pojo(), new Pojo());
+sheet.addAll(pojoList);
+
+// add one row to the sheet
+sheet.add(new Pojo());
+
+// write data to a local excel file
+String excelFile = System.getenv("HOME") + "/Downloads/SimpleListDemo.xlsx";
+new ExcelWorkbook<>().addSheet(sheet).writeTo(excelFile);
+----
+
+== Arch
+
+=== Concept
+
+==== `Workbook`
+
+Corresponding to an Excel file, _Interface_：`IExcelWorkbook`
+
+Including sheets, fonts, cell styles, pictures and so on
+
+===== `Sheet`
+
+Corresponding to a Sheet page, _Interface_：`IExcelSheet`
+
+Including cells
+
+==== `Cell`
+
+Corresponding to a Cell，_Interface_：`IExcelCell`
+
+Including address(row index, column index, row width, column width), content, cell style, hyperlink, comment and so on
+
+=== Rendering
+
+To use styles and fonts, you should declare them in `Workbook` first, and then quote them in the corresponding places
