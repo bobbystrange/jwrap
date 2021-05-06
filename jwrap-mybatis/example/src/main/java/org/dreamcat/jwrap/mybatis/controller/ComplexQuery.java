@@ -7,6 +7,7 @@ import lombok.Data;
  */
 @Data
 public class ComplexQuery {
+
     private String name;
     private String tags;
     private String firstName;

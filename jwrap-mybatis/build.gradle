@@ -1,9 +1,23 @@
 ext {
-    // https://mvnrepository.com/artifact/org.mybatis/mybatis
-    MYBATIS_VERSION = '3.5.6'
+    // // https://mvnrepository.com/artifact/org.mybatis/mybatis
+    // mybatisVersion = '3.5.7'
+    // // https://mvnrepository.com/artifact/org.mybatis/mybatis-spring
+    // mybatisSpringVersion = '2.0.6'
+    // https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-autoconfigure
+    mybatisSpringBootVersion = '2.1.4'
 }
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+jar.enabled = true
+bootJar.enabled = false
 
 dependencies {
     implementation "org.dreamcat:common-x:$COMMON_VERSION"
-    implementation "org.mybatis:mybatis:$MYBATIS_VERSION"
+    implementation "org.dreamcat:common-web:$COMMON_VERSION"
+
+    implementation "org.mybatis.spring.boot:mybatis-spring-boot-starter:$mybatisSpringBootVersion"
+    // implementation "org.mybatis:mybatis:$mybatisVersion"
+    // implementation "org.mybatis:mybatis-spring:$mybatisSpringVersion"
 }

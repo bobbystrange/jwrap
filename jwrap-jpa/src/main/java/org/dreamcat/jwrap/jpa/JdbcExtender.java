@@ -16,12 +16,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.dreamcat.common.util.StringUtil;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
 
 /**
  * Create by tuke on 2020/6/8
  */
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class JdbcExtender {
 
     static final String DEFAULT_PRIMARY_KEY = "id";

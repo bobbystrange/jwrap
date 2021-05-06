@@ -1,6 +1,5 @@
 package org.dreamcat.jwrap.excel.map;
 
-import static org.dreamcat.common.util.BeanUtil.pretty;
 import static org.dreamcat.common.util.RandomUtil.choose10;
 import static org.dreamcat.common.util.RandomUtil.choose36;
 import static org.dreamcat.common.util.RandomUtil.choose72;

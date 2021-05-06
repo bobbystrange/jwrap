@@ -14,7 +14,7 @@ import org.elasticsearch.client.RestClientBuilder;
  */
 public final class RestClientUtil {
 
-    private RestClientUtil(){
+    private RestClientUtil() {
     }
 
     public static RestClientBuilder restClientBuilder(String host) {

@@ -7,7 +7,7 @@ Authorization: Basic {{username}} {{password}}
 Content-Type: application/json
 
 {
-  "persistent" : {
-    "cluster.max_shards_per_node" : 100000
+  "persistent": {
+    "cluster.max_shards_per_node": 100000
   }
 }

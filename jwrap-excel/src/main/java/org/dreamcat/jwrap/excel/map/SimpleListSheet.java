@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.Getter;
-import org.dreamcat.common.x.asm.BeanMapUtil;
+import org.dreamcat.common.x.bean.BeanMapUtil;
 import org.dreamcat.jwrap.excel.content.ExcelUnionContent;
 import org.dreamcat.jwrap.excel.content.IExcelContent;
 import org.dreamcat.jwrap.excel.core.IExcelCell;

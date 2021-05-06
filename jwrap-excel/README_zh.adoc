@@ -50,8 +50,7 @@ new ExcelWorkbook<>().addSheet(sheet).writeTo(excelFile);
 
 对应一个Excel中的一个单元格，抽象接口：`IExcelCell`
 
-包含地址(行索引，列索引，行宽，列宽)，内容Content,
-样式CellStyle的引用，超链接Hyperlink，备注Comment等
+包含地址(行索引，列索引，行宽，列宽)，内容Content, 样式CellStyle的引用，超链接Hyperlink，备注Comment等
 
 === 渲染
 

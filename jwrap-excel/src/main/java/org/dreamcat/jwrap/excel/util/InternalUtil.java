@@ -11,7 +11,7 @@ import org.dreamcat.common.util.ReflectUtil;
  */
 public final class InternalUtil {
 
-    private InternalUtil(){
+    private InternalUtil() {
     }
 
     public static Font getFont(int fontIndex, Workbook workbook) {

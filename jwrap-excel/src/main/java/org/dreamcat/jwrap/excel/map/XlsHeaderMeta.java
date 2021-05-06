@@ -109,6 +109,7 @@ public class XlsHeaderMeta implements IExcelSheet {
      */
     @Data
     public static class Cell {
+
         int fieldIndex;
         String fieldName;
 

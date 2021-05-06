@@ -1,4 +1,4 @@
-package org.dreamcat.jwrap.mybatis;
+package org.dreamcat.jwrap.mybatis.type;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;

@@ -67,7 +67,7 @@ public interface BaseTest {
     }
 
     default void readExcel(String prefix, String suffix,
-            ThrowableConsumer<ExcelSheet>  callback) {
+            ThrowableConsumer<ExcelSheet> callback) {
         ExcelWorkbook<ExcelSheet> book;
         try {
             book = ExcelWorkbook.from(new File(baseDir, prefix + "." + suffix));

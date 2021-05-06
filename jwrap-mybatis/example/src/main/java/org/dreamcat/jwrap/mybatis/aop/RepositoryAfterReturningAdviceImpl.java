@@ -1,5 +1,6 @@
 package org.dreamcat.jwrap.mybatis.aop;
 
+import org.dreamcat.common.web.features.repository.RepositoryAfterReturningAdvice;
 import org.springframework.stereotype.Component;
 
 /**
@@ -9,22 +10,22 @@ import org.springframework.stereotype.Component;
 public class RepositoryAfterReturningAdviceImpl implements RepositoryAfterReturningAdvice {
 
     @Override
-    public void insert(Object returnValue, Object... args) {
-
+    public void insert(Object... args) {
+        // nop
     }
 
     @Override
-    public void update(Object returnValue, Object... args) {
-
+    public void update(Object... args) {
+        // nop
     }
 
     @Override
-    public void select(Object returnValue, Object... args) {
-
+    public void select(Object... args) {
+        // nop
     }
 
     @Override
-    public void delete(Object returnValue, Object... args) {
-
+    public void delete(Object... args) {
+        // nop
     }
 }

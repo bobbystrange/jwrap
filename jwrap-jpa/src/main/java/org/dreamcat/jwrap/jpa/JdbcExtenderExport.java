@@ -18,11 +18,13 @@ import org.dreamcat.common.function.ThrowableBiConsumer;
 import org.dreamcat.common.sql.ResultSetUtil;
 import org.dreamcat.common.x.jackson.JacksonUtil;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Component;
 
 /**
  * Create by tuke on 2020/6/8
  */
 @Slf4j
+@Component
 public class JdbcExtenderExport {
 
     private final JdbcExtender extender;

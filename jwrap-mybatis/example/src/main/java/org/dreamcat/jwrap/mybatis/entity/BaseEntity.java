@@ -12,6 +12,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class BaseEntity {
+
     private Long id;
     private String tenantId;
     private Date createTime;

@@ -18,9 +18,9 @@
   <insert id="insert" keyProperty="id" useGeneratedKeys="true">
     insert into complex(id, name, tags, user, tenant_id)
     values (#{entity.id}, #{entity.name},
-    #{entity.tags, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$TagsTypeHandler},
-    #{entity.user, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$UserTypeHandler},
-    #{tenantId})
+            #{entity.tags, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$TagsTypeHandler},
+            #{entity.user, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$UserTypeHandler},
+            #{tenantId})
   </insert>
 
   <insert id="batchInsert" keyProperty="list.id" useGeneratedKeys="true" parameterType="java.util.List">
@@ -46,13 +46,14 @@
   <update id="batchUpdate">
     update complex
     set name = #{entity.name},
-        tags = #{entity.tags, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$TagsTypeHandler},
-        user = #{entity.user, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$UserTypeHandler}
+    tags =
+    #{entity.tags, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$TagsTypeHandler},
+    user = #{entity.user, jdbcType=VARCHAR, typeHandler=org.dreamcat.jwrap.mybatis.entity.ComplexEntity$UserTypeHandler}
     where id in
     <foreach collection="ids" open="(" close=")" separator="," item="id">
       #{id}
     </foreach>
-      and tenant_id = #{tenantId}
+    and tenant_id = #{tenantId}
   </update>
 
   <select id="select" resultMap="Entity">
@@ -62,7 +63,8 @@
   </select>
 
   <delete id="delete">
-    delete from complex
+    delete
+    from complex
     where id = #{id}
   </delete>
 

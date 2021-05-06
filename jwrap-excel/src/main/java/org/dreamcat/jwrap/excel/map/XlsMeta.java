@@ -12,7 +12,7 @@ import lombok.Data;
 import org.dreamcat.common.util.ObjectUtil;
 import org.dreamcat.common.util.ReflectUtil;
 import org.dreamcat.common.util.StringUtil;
-import org.dreamcat.common.x.asm.BeanMapUtil;
+import org.dreamcat.common.x.bean.BeanMapUtil;
 import org.dreamcat.jwrap.excel.annotation.XlsCell;
 import org.dreamcat.jwrap.excel.annotation.XlsFont;
 import org.dreamcat.jwrap.excel.annotation.XlsFormat;

@@ -11,7 +11,6 @@ import org.dreamcat.jwrap.excel.BaseTest;
 import org.dreamcat.jwrap.excel.annotation.XlsSheet;
 import org.dreamcat.jwrap.excel.callback.FitWidthWriteCallback;
 import org.dreamcat.jwrap.excel.core.DelegateSheet;
-import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
 import org.dreamcat.jwrap.excel.core.IExcelSheet;
 import org.junit.Ignore;
 import org.junit.Test;

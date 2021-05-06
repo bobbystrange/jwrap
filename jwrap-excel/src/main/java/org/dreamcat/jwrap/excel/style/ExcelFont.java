@@ -1,7 +1,6 @@
 package org.dreamcat.jwrap.excel.style;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode.Exclude;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;

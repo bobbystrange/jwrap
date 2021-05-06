@@ -1,7 +1,7 @@
 # [qpdf](http://qpdf.sourceforge.net/)
 
-QPDF is a command-line program that does structural, content-preserving transformations on PDF
-files. It could have been called something like pdf-to-pdf
+QPDF is a command-line program that does structural, content-preserving transformations on PDF files. It could have been
+called something like pdf-to-pdf
 
 ```bash
 brew install qpdf

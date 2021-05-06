@@ -12,12 +12,12 @@ import org.dreamcat.jwrap.mybatis.entity.SimpleEntity;
 @Mapper
 public interface SimpleMapper {
 
-    @RepositoryAfterReturning(type = Type.SELECT, expressions = {
+    @RepositoryAfterReturning(type = Type.SELECT, args = {
             "'simple'", "#id", "#result.tenantId"
     })
     SimpleEntity select(@Param("id") Long id);
 
-    @RepositoryAfterReturning(type = Type.INSERT, expressions = {
+    @RepositoryAfterReturning(type = Type.INSERT, args = {
             "'simple'", "#entity.id", "#tenantId"
     })
     int insert(@Param("entity") SimpleEntity entity, @Param("tenantId") String tenantId);

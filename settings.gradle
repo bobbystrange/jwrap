@@ -1,12 +1,19 @@
 rootProject.name = 'jwrap'
 
-// util
-include 'jwrap-excel'
-include 'jwrap-compress'
-include 'jwrap-qrcode'
-include 'jwrap-conv', 'jwrap-conv:example:pdf', 'jwrap-conv:example:jacob'
+def projects = [
+        // util
+        'jwrap-excel',
+        'jwrap-compress',
+        'jwrap-qrcode',
+        'jwrap-conv', 'jwrap-conv:example:pdf', 'jwrap-conv:example:jacob',
+        // web
+        'jwrap-jpa',
+        'jwrap-mybatis', 'jwrap-mybatis:example',
+        'jwrap-elasticsearch', 'jwrap-elasticsearch:example',
+        // security
+        'jwrap-jwt', 'jwrap-jwt:example-web', 'jwrap-jwt:example-webflux',
+]
 
-// web
-include 'jwrap-jpa'
-include 'jwrap-mybatis', 'jwrap-mybatis:example'
-include 'jwrap-elasticsearch', 'jwrap-elasticsearch:example'
+projects.forEach {
+    include it
+}

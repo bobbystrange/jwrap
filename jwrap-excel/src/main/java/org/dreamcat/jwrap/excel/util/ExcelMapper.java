@@ -27,26 +27,26 @@ public final class ExcelMapper {
     public static List<List<List<String>>> parseAsString(String filename)
             throws IOException, InvalidFormatException {
         return ArrayUtil.map(parse(filename), list -> list == null ? null : list.stream()
-                .map(StringUtil::toString)
+                .map(StringUtil::string)
                 .collect(Collectors.toList()));
     }
 
     public static List<List<List<String>>> parseAsString(File file)
             throws IOException, InvalidFormatException {
         return ArrayUtil.map(parse(file), list -> list == null ? null : list.stream()
-                .map(StringUtil::toString)
+                .map(StringUtil::string)
                 .collect(Collectors.toList()));
     }
 
     public static List<List<List<String>>> parseAsString(InputStream input) throws IOException {
         return ArrayUtil.map(parse(input), list -> list == null ? null : list.stream()
-                .map(StringUtil::toString)
+                .map(StringUtil::string)
                 .collect(Collectors.toList()));
     }
 
     public static List<List<List<String>>> parseAsString(Workbook workbook) {
         return ArrayUtil.map(parse(workbook), list -> list == null ? null : list.stream()
-                .map(StringUtil::toString)
+                .map(StringUtil::string)
                 .collect(Collectors.toList()));
     }
 
@@ -54,44 +54,44 @@ public final class ExcelMapper {
 
     public static List<List<String>> parseAsString(String filename, int sheetIndex)
             throws IOException, InvalidFormatException {
-        return ArrayUtil.map(parse(filename, sheetIndex), StringUtil::toString);
+        return ArrayUtil.map(parse(filename, sheetIndex), StringUtil::string);
     }
 
     public static List<List<String>> parseAsString(File file, int sheetIndex)
             throws IOException, InvalidFormatException {
-        return ArrayUtil.map(parse(file, sheetIndex), StringUtil::toString);
+        return ArrayUtil.map(parse(file, sheetIndex), StringUtil::string);
     }
 
     public static List<List<String>> parseAsString(InputStream input, int sheetIndex)
             throws IOException {
-        return ArrayUtil.map(parse(input, sheetIndex), StringUtil::toString);
+        return ArrayUtil.map(parse(input, sheetIndex), StringUtil::string);
     }
 
     public static List<List<String>> parseAsString(String filename, String sheetName)
             throws IOException, InvalidFormatException {
-        return ArrayUtil.map(parse(filename, sheetName), StringUtil::toString);
+        return ArrayUtil.map(parse(filename, sheetName), StringUtil::string);
     }
 
     public static List<List<String>> parseAsString(File file, String sheetName)
             throws IOException, InvalidFormatException {
-        return ArrayUtil.map(parse(file, sheetName), StringUtil::toString);
+        return ArrayUtil.map(parse(file, sheetName), StringUtil::string);
     }
 
     public static List<List<String>> parseAsString(InputStream input, String sheetName)
             throws IOException {
-        return ArrayUtil.map(parse(input, sheetName), StringUtil::toString);
+        return ArrayUtil.map(parse(input, sheetName), StringUtil::string);
     }
 
     public static List<List<String>> parseAsString(Workbook workbook, int sheetIndex) {
-        return ArrayUtil.map(parse(workbook, sheetIndex), StringUtil::toString);
+        return ArrayUtil.map(parse(workbook, sheetIndex), StringUtil::string);
     }
 
     public static List<List<String>> parseAsString(Workbook workbook, String sheetName) {
-        return ArrayUtil.map(parse(workbook, sheetName), StringUtil::toString);
+        return ArrayUtil.map(parse(workbook, sheetName), StringUtil::string);
     }
 
     public static List<List<String>> parseAsString(Sheet sheet) {
-        return ArrayUtil.map(parse(sheet), StringUtil::toString);
+        return ArrayUtil.map(parse(sheet), StringUtil::string);
     }
 
     // ---- ---- ---- ----    ---- ---- ---- ----    ---- ---- ---- ----

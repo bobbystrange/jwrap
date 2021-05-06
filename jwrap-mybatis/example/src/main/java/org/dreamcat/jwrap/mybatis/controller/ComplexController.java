@@ -2,6 +2,7 @@ package org.dreamcat.jwrap.mybatis.controller;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,11 +10,12 @@ import org.dreamcat.common.x.jackson.JacksonUtil;
 import org.dreamcat.jwrap.mybatis.dao.ComplexMapper;
 import org.dreamcat.jwrap.mybatis.dao.SimpleMapper;
 import org.dreamcat.jwrap.mybatis.entity.ComplexEntity;
+import org.dreamcat.jwrap.mybatis.entity.ComplexEntity.Tag;
 import org.dreamcat.jwrap.mybatis.entity.SimpleEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,30 +26,31 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 public class ComplexController {
+
     private final ComplexMapper complexMapper;
     private final SimpleMapper simpleMapper;
 
-    @RequestMapping(path = "/complex", method = RequestMethod.GET)
+    @GetMapping(path = "/complex")
     public ResponseEntity<ComplexEntity> select(@RequestParam(name = "id") Long id) {
-        var entity = complexMapper.select(id);
+        ComplexEntity entity = complexMapper.select(id);
         return new ResponseEntity<>(entity, entity != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(path = "/complex", method = RequestMethod.POST)
+    @PostMapping(path = "/complex")
     public Long insert(ComplexQuery query) {
         log.info("POST {}", JacksonUtil.toJson(query));
 
-        var entity = new ComplexEntity();
+        ComplexEntity entity = new ComplexEntity();
         entity.setName(query.getName());
 
-        var user = new ComplexEntity.User();
+        ComplexEntity.User user = new ComplexEntity.User();
         user.setFirstName(query.getFirstName());
         user.setLastName(query.getLastName());
         entity.setUser(user);
 
-        var tagsStr = query.getTags();
+        String tagsStr = query.getTags();
         if (tagsStr != null) {
-            var tags = Arrays.stream(tagsStr.split(","))
+            List<Tag> tags = Arrays.stream(tagsStr.split(","))
                     .map(String::trim)
                     .map(ComplexEntity.Tag::new)
                     .collect(Collectors.toList());
@@ -59,16 +62,16 @@ public class ComplexController {
         return entity.getId();
     }
 
-    @RequestMapping(path = "/simple", method = RequestMethod.GET)
+    @GetMapping(path = "/simple")
     public ResponseEntity<SimpleEntity> selectSimple(@RequestParam(name = "id") Long id) {
-        var entity = simpleMapper.select(id);
+        SimpleEntity entity = simpleMapper.select(id);
         return new ResponseEntity<>(entity, entity != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
 
-    @RequestMapping(path = "/simple", method = RequestMethod.POST)
+    @PostMapping(path = "/simple")
     public SimpleEntity insertSimple(@RequestParam("content") String content) {
         log.info("POST {}", content);
-        var entity = new SimpleEntity();
+        SimpleEntity entity = new SimpleEntity();
         entity.setType(SimpleEntity.Type.COMMON);
         entity.setContent(content);
 

@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.UnaryOperator;
 import lombok.RequiredArgsConstructor;
-import org.dreamcat.common.x.asm.BeanCopierUtil;
 import org.dreamcat.common.x.asm.MakeClass;
+import org.dreamcat.common.x.bean.BeanCopierUtil;
 
 /**
  * Create by tuke on 2020/5/30

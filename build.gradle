@@ -9,7 +9,6 @@ plugins {
 
 subprojects {
     apply plugin: 'java-library'
-    apply plugin: 'org.sonarqube'
 
     compileJava.options.encoding = 'UTF-8'
     compileTestJava.options.encoding = 'UTF-8'
@@ -37,5 +36,15 @@ subprojects {
     if (projectDir.getParent() == rootDir.path) {
         // apply from: "../publish.gradle"
         apply from: "../publish-mavenCentral.gradle"
+        apply plugin: 'org.sonarqube'
+
+        sonarqube {
+            // skipProject = true
+            properties {
+                property "sonar.projectKey", "${project.name}"
+                property "sonar.organization", "tuke"
+                property "sonar.host.url", "https://sonarcloud.io"
+            }
+        }
     }
 }

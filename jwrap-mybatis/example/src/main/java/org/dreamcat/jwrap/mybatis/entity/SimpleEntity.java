@@ -1,7 +1,6 @@
 package org.dreamcat.jwrap.mybatis.entity;
 
 import java.util.function.IntSupplier;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,6 +12,7 @@ import lombok.ToString;
 @Setter
 @ToString(callSuper = true)
 public class SimpleEntity extends BaseEntity {
+
     private Type type;
     private String content;
 
