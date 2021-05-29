@@ -19,14 +19,14 @@ import org.junit.Test;
  * Create by tuke on 2021/2/16
  */
 @Ignore
-public class AnnotationRowSheetEdgeTest implements BaseTest {
+public class AnnotatedRowSheetEdgeTest implements BaseTest {
 
     @Test
     public void test() {
         List<IExcelSheet> sheets = new ArrayList<>();
         List<Object> list = newPojoList();
         for (Object pojo : list) {
-            AnnotationRowSheet sheet = new AnnotationRowSheet(pojo);
+            AnnotatedRowSheet sheet = new AnnotatedRowSheet(pojo);
             sheet.setName(pojo.getClass().getSimpleName());
 
             DelegateSheet delegateSheet = new DelegateSheet(sheet);

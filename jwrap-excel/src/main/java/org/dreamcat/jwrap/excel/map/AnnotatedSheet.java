@@ -15,28 +15,33 @@ import org.dreamcat.jwrap.excel.style.ExcelStyle;
 /**
  * Create by tuke on 2020/7/26
  * <p>
+ * treat Pojo as Sheet
+ * <p>
  * It is a very tricky implementation to translate annotated beans to sheet interface,
  * which simplifies the API usage without sacrificing memory
  * Note that it is thread-unsafe in the iteration however
  */
 @Getter
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class AnnotationListSheet implements IExcelSheet {
+public class AnnotatedSheet implements IExcelSheet {
 
     private String name;
     // [Sheet..., T1..., Sheet..., T2...], it mixes Sheet & Pojo up
     private final List schemes;
-    // Note that it maybe create more than 64000 cell styles on one sheet, that will cause a error
+    // Note that if you set it ture, then that maybe create more than 64000 cell styles on one sheet, which will cause a error
     @Setter
     private boolean annotationStyle;
     @Setter
     private IExcelWriteCallback writeCallback;
 
-    public AnnotationListSheet(String name) {
+    public AnnotatedSheet(String name) {
         this(name, new ArrayList<>(0));
     }
 
-    public AnnotationListSheet(String name, List schemes) {
+    /**
+     * A scheme is one of Sheet or Pojo (support annotations especially)
+     */
+    public AnnotatedSheet(String name, List schemes) {
         this.name = name;
         this.schemes = schemes;
     }
@@ -85,7 +90,7 @@ public class AnnotationListSheet implements IExcelSheet {
         boolean nextInRowSheetIterCase;
         // just switch row sheet to iterator
         boolean inSwitchIterCase;
-        AnnotationRowSheet.Iter rowSheetIter;
+        AnnotatedRowSheet.Iter rowSheetIter;
 
         private Iter() {
             schemeSize = schemes.size();
@@ -178,7 +183,7 @@ public class AnnotationListSheet implements IExcelSheet {
                 nextInRowSheetIterCase = false;
             } else {
                 if (rowSheetIter == null) {
-                    AnnotationRowSheet rowSheet = new AnnotationRowSheet(rawScheme);
+                    AnnotatedRowSheet rowSheet = new AnnotatedRowSheet(rawScheme);
                     rowSheetIter = rowSheet.new Iter();
                 } else {
                     rowSheetIter.reset(rawScheme);

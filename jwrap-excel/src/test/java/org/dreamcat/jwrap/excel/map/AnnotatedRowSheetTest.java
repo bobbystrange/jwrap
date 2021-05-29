@@ -19,18 +19,18 @@ import org.junit.Test;
 /**
  * Create by tuke on 2020/7/26
  */
-public class AnnotationRowSheetTest implements BaseTest {
+public class AnnotatedRowSheetTest implements BaseTest {
 
     @Test
     public void test() {
         Pojo pojo = newPojo();
-        AnnotationRowSheet sheet = new AnnotationRowSheet(pojo);
+        AnnotatedRowSheet sheet = new AnnotatedRowSheet(pojo);
         printSheetVerbose(sheet);
 
-        AnnotationListSheet listSheet = new AnnotationListSheet("Sheet");
+        AnnotatedSheet listSheet = new AnnotatedSheet("Sheet");
         listSheet.addSheet(sheet);
-        listSheet.addSheet(new AnnotationRowSheet(newPojo()));
-        listSheet.addSheet(new AnnotationRowSheet(newPojo()));
+        listSheet.addSheet(new AnnotatedRowSheet(newPojo()));
+        listSheet.addSheet(new AnnotatedRowSheet(newPojo()));
 
         writeXlsx("book_AnnotationRowSheetTest_test", listSheet);
     }
@@ -76,7 +76,7 @@ public class AnnotationRowSheetTest implements BaseTest {
         Item V;
         List<Map<String, String>> DA;
         Map<String, String> D;
-        @XlsCell(expanded = true, expandedType = Item.class)
+        @XlsCell(expanded = true)
         List<Item> VA;
     }
 

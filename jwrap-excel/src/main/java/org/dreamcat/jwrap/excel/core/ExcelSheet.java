@@ -34,6 +34,11 @@ public class ExcelSheet implements IExcelSheet {
         this.cells = new ArrayList<>();
     }
 
+    public ExcelSheet(String name, List<IExcelCell> cells) {
+        this(name);
+        this.cells.addAll(cells);
+    }
+
     public static ExcelSheet from(Sheet sheet, ExcelWorkbook<?> excelWorkbook) {
         ExcelSheet excelSheet = new ExcelSheet(sheet.getSheetName());
 

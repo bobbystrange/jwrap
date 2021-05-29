@@ -21,10 +21,12 @@ import org.dreamcat.jwrap.excel.style.ExcelStyle;
 
 /**
  * Create by tuke on 2020/7/25
+ * <p>
+ * treat Pojo as Sheet
  */
 @Getter
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class AnnotationRowSheet implements IExcelSheet {
+public class AnnotatedRowSheet implements IExcelSheet {
 
     private final Map<Class, MetaCacheLine> metaMap = new HashMap<>();
     @Setter
@@ -33,12 +35,8 @@ public class AnnotationRowSheet implements IExcelSheet {
     private XlsMeta meta;
     private List<Integer> indexes;
 
-    public AnnotationRowSheet(Object scheme) {
+    public AnnotatedRowSheet(Object scheme) {
         reset(scheme);
-    }
-
-    private static boolean isNotListOrArray(Object o) {
-        return !(o instanceof List) && !(o.getClass().isArray());
     }
 
     public void reset(Object scheme) {
@@ -122,7 +120,7 @@ public class AnnotationRowSheet implements IExcelSheet {
         }
 
         public void reset(Object scheme) {
-            AnnotationRowSheet.this.reset(scheme);
+            AnnotatedRowSheet.this.reset(scheme);
 
             subMeta = null;
             subIndexes = null;
@@ -415,14 +413,14 @@ public class AnnotationRowSheet implements IExcelSheet {
 
             // v
             if (isNotListOrArray(fieldValue)) {
-                AnnotationRowSheet.MetaCacheLine cacheLine = metaMap.computeIfAbsent(
+                AnnotatedRowSheet.MetaCacheLine cacheLine = metaMap.computeIfAbsent(
                         fieldValue.getClass(), c -> {
                             XlsMeta newMeta = XlsMeta.parse(c, false);
                             if (newMeta == null) {
                                 throw new IllegalArgumentException(
                                         "no @XlsSheet annotation on " + c);
                             }
-                            return new AnnotationRowSheet.MetaCacheLine(newMeta,
+                            return new AnnotatedRowSheet.MetaCacheLine(newMeta,
                                     newMeta.getFieldIndexes());
                         });
                 subMeta = cacheLine.meta;
@@ -439,13 +437,13 @@ public class AnnotationRowSheet implements IExcelSheet {
                 throw new IllegalArgumentException(
                         "empty list/array field value in " + scheme.getClass());
             }
-            AnnotationRowSheet.MetaCacheLine cacheLine = metaMap.computeIfAbsent(
+            AnnotatedRowSheet.MetaCacheLine cacheLine = metaMap.computeIfAbsent(
                     rectangle.get(0).getClass(), c -> {
                         XlsMeta newMeta = XlsMeta.parse(c, false);
                         if (newMeta == null) {
                             throw new IllegalArgumentException("no @XlsSheet annotation on " + c);
                         }
-                        return new AnnotationRowSheet.MetaCacheLine(newMeta,
+                        return new AnnotatedRowSheet.MetaCacheLine(newMeta,
                                 newMeta.getFieldIndexes());
                     });
             subMeta = cacheLine.meta;
@@ -485,5 +483,9 @@ public class AnnotationRowSheet implements IExcelSheet {
                 setContent(cell.serializer.apply(value));
             }
         }
+    }
+
+    private static boolean isNotListOrArray(Object o) {
+        return !(o instanceof List) && !(o.getClass().isArray());
     }
 }

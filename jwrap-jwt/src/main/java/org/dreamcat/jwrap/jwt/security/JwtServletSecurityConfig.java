@@ -1,8 +1,6 @@
-package org.dreamcat.jwrap.jwt.config;
+package org.dreamcat.jwrap.jwt.security;
 
-import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.dreamcat.jwrap.jwt.security.JwtServletFilter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -36,12 +34,11 @@ public class JwtServletSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // no cookie
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .exceptionHandling().authenticationEntryPoint(
-                (request, response, authException) ->
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
-                                "Unauthorized in error handler")
-        )
+                // .and()
+                // .exceptionHandling().authenticationEntryPoint(
+                // (request, response, authException) ->
+                //         response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                //                 "Unauthorized in error handler"))
                 .and()
                 .authorizeRequests().anyRequest().permitAll()
                 // no need login

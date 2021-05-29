@@ -22,7 +22,8 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.dreamcat.common.util.ArrayUtil;
-import org.dreamcat.common.x.asm.BeanMapUtil;
+import org.dreamcat.common.util.BeanUtil;
+import org.dreamcat.common.x.bean.BeanMapUtil;
 import org.dreamcat.jwrap.excel.BaseTest;
 import org.dreamcat.jwrap.excel.annotation.XlsCell;
 import org.dreamcat.jwrap.excel.annotation.XlsFont;
@@ -114,9 +115,7 @@ public class XlsMetaTest implements BaseTest {
     public void test() {
         XlsMeta metadata = XlsMeta.parse(Pojo.class, true);
         assert metadata != null;
-        printSheetVerbose(metadata);
-
-        writeXlsx("XlsMetaTest_test", metadata);
+        System.out.println(BeanUtil.pretty(metadata));
     }
 
     @Data
@@ -136,7 +135,7 @@ public class XlsMetaTest implements BaseTest {
         List<Double> SA;
 
         @XlsStyle(verticalAlignment = VerticalAlignment.CENTER)
-        @XlsCell(expanded = true, subheader = true)
+        @XlsCell(expanded = true)
         @XlsFont(name = "黑体", height = 21, italic = true, indexedColor = IndexedColors.AQUA)
         Item V;
 
@@ -145,7 +144,7 @@ public class XlsMetaTest implements BaseTest {
                 borderBottom = BorderStyle.DASH_DOT_DOT,
                 borderLeft = BorderStyle.THICK)
         @XlsFont(name = "微软雅黑", height = 16, bold = true, italic = true)
-        @XlsCell(expanded = true, expandedType = Item.class)
+        @XlsCell(expanded = true)
         List<Item> VA;
     }
 

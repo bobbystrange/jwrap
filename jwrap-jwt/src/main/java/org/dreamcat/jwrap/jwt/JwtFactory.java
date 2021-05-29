@@ -3,7 +3,6 @@ package org.dreamcat.jwrap.jwt;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ public class JwtFactory {
     public static final String TOKEN_PREFIX = TOKEN_TYPE + " ";
     public static final String TOKEN_HEADER = "Authorization";
     public static final String TOKEN_COOKIE_NAME = "Bearer";
-    public static final String TOKEN_ATTRIBUTE = "org.dreamcat.common.web.jwt";
+    public static final String TOKEN_ATTRIBUTE = JwtFactory.class.getPackage().getName();
 
     protected final JwtProperties jwtProperties;
 
@@ -29,12 +28,12 @@ public class JwtFactory {
         return generateToken(subject, Arrays.asList(permissions));
     }
 
-    public String generateToken(String subject, List<String> permissions) {
+    public String generateToken(String subject, Collection<String> permissions) {
         if (ObjectUtil.isEmpty(permissions)) permissions = null;
         return generateToken(subject, permissions, null);
     }
 
-    public String generateToken(String subject, List<String> permissions,
+    public String generateToken(String subject, Collection<String> permissions,
             Map<String, Object> claims) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
@@ -42,7 +41,7 @@ public class JwtFactory {
                 .setPermissions(permissions)
                 .setClaims(claims)
                 .issuedAt(now)
-                .maxAge(jwtProperties.getMaxAge())
+                .ttlMs(jwtProperties.getTtlMs())
                 .signWith(jwtProperties.getSecretKey())
                 .compact();
     }
@@ -55,7 +54,7 @@ public class JwtFactory {
 
         long now = System.currentTimeMillis();
         jwt.setIssuedAt(now);
-        jwt.setExpiredAt(now + jwtProperties.getMaxAge());
+        jwt.setExpiredAt(now + jwtProperties.getTtlMs());
         return jwt.encode(jwtProperties.getSecretKey());
     }
 

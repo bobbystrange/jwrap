@@ -13,7 +13,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class JwtProperties {
 
     private String secretKey;
-    private long maxAge;
+    private long ttlMs;
     // add extra CORS headers
     private boolean enableCors;
     // store token in cookie rather than header

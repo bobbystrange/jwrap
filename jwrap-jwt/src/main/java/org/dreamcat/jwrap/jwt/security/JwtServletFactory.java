@@ -3,7 +3,6 @@ package org.dreamcat.jwrap.jwt.security;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -74,7 +73,7 @@ public final class JwtServletFactory extends JwtFactory {
     public void putTokenToCookie(HttpServletResponse response, String token) {
         Cookie cookie = new Cookie(TOKEN_COOKIE_NAME, token);
         cookie.setHttpOnly(true);
-        cookie.setMaxAge((int) Math.max(jwtProperties.getMaxAge(), Integer.MAX_VALUE));
+        cookie.setMaxAge((int) Math.max(jwtProperties.getTtlMs(), Integer.MAX_VALUE));
         response.addCookie(cookie);
     }
 
@@ -131,12 +130,12 @@ public final class JwtServletFactory extends JwtFactory {
         }
     }
 
-    public void generateAndSetToken(String subject, List<String> permissions) {
+    public void generateAndSetToken(String subject, Collection<String> permissions) {
         if (ObjectUtil.isEmpty(permissions)) permissions = null;
         generateAndSetToken(subject, permissions, null);
     }
 
-    public void generateAndSetToken(String subject, List<String> permissions,
+    public void generateAndSetToken(String subject, Collection<String> permissions,
             Map<String, Object> claims) {
         String token = generateToken(subject, permissions, claims);
         HttpServletResponse response = ServletUtil.getResponse();

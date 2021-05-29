@@ -6,12 +6,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Create by tuke on 2020/3/5
  */
 @Configuration
 @EnableConfigurationProperties({AnonymityProperties.class, JwtProperties.class})
+@Import({JwtServletSecurityConfig.class})
 public class JwtServletSecurityAutoConfiguration {
 
     //@Bean

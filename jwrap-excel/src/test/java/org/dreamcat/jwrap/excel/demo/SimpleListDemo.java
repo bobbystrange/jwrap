@@ -10,7 +10,7 @@ import org.dreamcat.jwrap.excel.annotation.XlsHeader;
 import org.dreamcat.jwrap.excel.annotation.XlsSheet;
 import org.dreamcat.jwrap.excel.annotation.XlsStyle;
 import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
-import org.dreamcat.jwrap.excel.map.SimpleListSheet;
+import org.dreamcat.jwrap.excel.map.SimpleSheet;
 
 /**
  * Create by tuke on 2021/2/16
@@ -35,17 +35,23 @@ public class SimpleListDemo {
 
     public static void main(String[] args) throws IOException {
         // build a empty sheet called "Sheet One"
-        SimpleListSheet sheet = new SimpleListSheet("Sheet One");
+        SimpleSheet sheet1 = new SimpleSheet("Sheet One");
         // add a styled header row to the sheet
-        sheet.addHeader(Pojo.class);
+        sheet1.addHeader(Pojo.class);
         // add many rows to the sheet
         List<Pojo> pojoList = Arrays.asList(new Pojo(), new Pojo());
-        sheet.addAll(pojoList);
+        sheet1.addAll(pojoList);
         // add one row to the sheet
-        sheet.add(new Pojo());
+        sheet1.addRow(new Pojo());
+
+        // custom bean2list, only output c & a
+        sheet1.setSchemeConverter(bean -> {
+            Pojo pojo = (Pojo) bean;
+            return Arrays.asList(pojo.c, pojo.a);
+        });
 
         // write data to a local excel file
         String excelFile = System.getenv("HOME") + "/Downloads/SimpleListDemo.xlsx";
-        new ExcelWorkbook<>().addSheet(sheet).writeTo(excelFile);
+        new ExcelWorkbook<>().addSheet(sheet1).writeTo(excelFile);
     }
 }

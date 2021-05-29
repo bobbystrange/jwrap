@@ -3,8 +3,6 @@ plugins {
     id 'org.springframework.boot' version '2.4.2' apply false
     // https://plugins.gradle.org/plugin/io.spring.dependency-management
     id 'io.spring.dependency-management' version '1.0.11.RELEASE' apply false
-    // https://plugins.gradle.org/plugin/org.sonarqube
-    id "org.sonarqube" version "3.1.1" apply false
 }
 
 subprojects {
@@ -15,6 +13,14 @@ subprojects {
     sourceCompatibility = '8'
     version = VERSION
     group = GROUP_ID
+
+    // set up the default repositories to mavenCentral & maven snapshots
+    if (project.repositories.isEmpty()) {
+        repositories {
+            mavenCentral()
+            maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        }
+    }
 
     ext {
         slf4jVersion = "1.7.30"
@@ -36,15 +42,5 @@ subprojects {
     if (projectDir.getParent() == rootDir.path) {
         // apply from: "../publish.gradle"
         apply from: "../publish-mavenCentral.gradle"
-        apply plugin: 'org.sonarqube'
-
-        sonarqube {
-            // skipProject = true
-            properties {
-                property "sonar.projectKey", "${project.name}"
-                property "sonar.organization", "tuke"
-                property "sonar.host.url", "https://sonarcloud.io"
-            }
-        }
     }
 }

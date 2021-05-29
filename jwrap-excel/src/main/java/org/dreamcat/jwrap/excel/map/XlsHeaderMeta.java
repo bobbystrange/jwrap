@@ -11,10 +11,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.Getter;
+import org.dreamcat.common.util.ObjectUtil;
 import org.dreamcat.common.util.ReflectUtil;
 import org.dreamcat.common.util.StringUtil;
 import org.dreamcat.jwrap.excel.annotation.XlsHeader;
 import org.dreamcat.jwrap.excel.annotation.XlsHeader.SubheaderStyle;
+import org.dreamcat.jwrap.excel.annotation.XlsSheet;
 import org.dreamcat.jwrap.excel.core.ExcelCell;
 import org.dreamcat.jwrap.excel.core.IExcelCell;
 import org.dreamcat.jwrap.excel.core.IExcelSheet;
@@ -166,6 +168,7 @@ public class XlsHeaderMeta implements IExcelSheet {
     public static XlsHeaderMeta parse(Class<?> clazz, boolean enableExpanded) {
         XlsHeaderMeta meta = new XlsHeaderMeta();
         boolean onlyAnnotated = parseXlsHeaderDefault(meta, clazz);
+        parseXlsSheetForName(meta, clazz);
 
         List<Field> fields = ReflectUtil.retrieveFields(clazz);
         int index = 0;
@@ -177,6 +180,17 @@ public class XlsHeaderMeta implements IExcelSheet {
         }
 
         return meta;
+    }
+
+    private static void parseXlsSheetForName(XlsHeaderMeta meta, Class<?> clazz) {
+        XlsSheet xlsSheet = ReflectUtil.retrieveAnnotation(
+                clazz, XlsSheet.class);
+        if (xlsSheet != null) {
+            meta.name = xlsSheet.name();
+        }
+        if (ObjectUtil.isBlank(meta.name)) {
+            meta.name = clazz.getSimpleName();
+        }
     }
 
     private static boolean parseXlsHeaderDefault(XlsHeaderMeta meta, Class<?> clazz) {

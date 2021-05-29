@@ -3,20 +3,17 @@
 <mapper namespace="org.dreamcat.jwrap.mybatis.dao.DDLMapper">
 
   <update id="createTable">
-    create table if not exists `ddl_${suffix}`
-    (
+    create table if not exists `ddl_${suffix}` (
       `id`
       bigint
       not
       null
-      auto_increment,
-      `ctime`
+      auto_increment, `ctime`
       timestamp
       not
       null
       default
-      current_timestamp,
-      `mtime`
+      current_timestamp, `mtime`
       timestamp
       not
       null
@@ -24,33 +21,28 @@
       current_timestamp
       on
       update
-      current_timestamp,
-      primary
+      current_timestamp, primary
       key
     (
       `id`
     ),
-      key
-      (ctime)
+      key (ctime)
       ) engine = InnoDB
       default charset = utf8mb4;
   </update>
 
   <update id="createRecordTable">
-    create table if not exists `ddl_record_${suffix}`
-    (
+    create table if not exists `ddl_record_${suffix}` (
       `id`
       bigint
       not
       null
-      auto_increment,
-      `ctime`
+      auto_increment, `ctime`
       timestamp
       not
       null
       default
-      current_timestamp,
-      `mtime`
+      current_timestamp, `mtime`
       timestamp
       not
       null
@@ -58,28 +50,22 @@
       current_timestamp
       on
       update
-      current_timestamp,
-      `ddl_id`
+      current_timestamp, `ddl_id`
       bigint
       not
       null
       comment
-      'ddl_${suffix} id',
-      `content`
+      'ddl_${suffix} id', `content`
       text
-      null,
-      `type`
+      null, `type`
       tinyint
-      null,
-      primary
+      null, primary
       key
     (
       `id`
     ),
-      key
-      (ddl_id),
-      key
-      (ctime)
+      key (ddl_id),
+      key (ctime)
       ) engine = InnoDB
       default charset = utf8mb4;
   </update>

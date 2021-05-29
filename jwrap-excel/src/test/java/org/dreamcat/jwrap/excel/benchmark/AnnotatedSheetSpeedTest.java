@@ -18,7 +18,7 @@ import org.dreamcat.jwrap.excel.callback.FitWidthWriteCallback;
 import org.dreamcat.jwrap.excel.core.ExcelCell;
 import org.dreamcat.jwrap.excel.core.ExcelSheet;
 import org.dreamcat.jwrap.excel.core.ExcelWorkbook;
-import org.dreamcat.jwrap.excel.map.AnnotationListSheet;
+import org.dreamcat.jwrap.excel.map.AnnotatedSheet;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ import org.junit.Test;
  */
 @Ignore
 @SuppressWarnings("unchecked")
-public class AnnotationListSheetSpeedTest {
+public class AnnotatedSheetSpeedTest {
 
     // xmx128m, max 88%
     @Test
@@ -70,7 +70,7 @@ public class AnnotationListSheetSpeedTest {
     }
 
     private void byReuse(List<Pojo> pojoList) throws IOException {
-        AnnotationListSheet sheet = new AnnotationListSheet("Sheet One");
+        AnnotatedSheet sheet = new AnnotatedSheet("Sheet One");
         sheet.setAnnotationStyle(false);
         sheet.addAll(pojoList);
         sheet.setWriteCallback(new FitWidthWriteCallback());

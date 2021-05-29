@@ -63,7 +63,7 @@ public class JwtReactiveFactory extends JwtFactory {
     public void putTokenToCookie(ServerHttpResponse response, String token) {
         ResponseCookie cookie = ResponseCookie.from(TOKEN_COOKIE_NAME, token)
                 .httpOnly(true)
-                .maxAge(jwtProperties.getMaxAge())
+                .maxAge(jwtProperties.getTtlMs())
                 .build();
         response.addCookie(cookie);
     }

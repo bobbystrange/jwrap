@@ -24,7 +24,7 @@ public final class Jwts {
 
         private final Jwt jwt;
         private String token;
-        private Long maxAge;
+        private Long ttlMs;
 
         private Builder() {
             long now = System.currentTimeMillis();
@@ -39,8 +39,8 @@ public final class Jwts {
             return this;
         }
 
-        public Builder maxAge(long maxAgeInSecond) {
-            this.maxAge = maxAgeInSecond;
+        public Builder ttlMs(long ttlMs) {
+            this.ttlMs = ttlMs;
             return this;
         }
 
@@ -49,8 +49,8 @@ public final class Jwts {
                 jwt.algorithm(algorithm);
             }
             // since I already set expiredAt
-            if (maxAge != null) {
-                jwt.expiredAt(jwt.getIssuedAt() + maxAge * 1000);
+            if (ttlMs != null) {
+                jwt.expiredAt(jwt.getIssuedAt() + ttlMs);
             }
             this.token = jwt.encode(key);
             return this;
