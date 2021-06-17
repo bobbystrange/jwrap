@@ -19,7 +19,7 @@ public class SimpleListDemo {
 
     @XlsSheet(name = "Sheet via @XlsSheet")
     @Data
-    private static class Pojo {
+    static class Pojo {
 
         @XlsHeader(
                 header = "Cell A",

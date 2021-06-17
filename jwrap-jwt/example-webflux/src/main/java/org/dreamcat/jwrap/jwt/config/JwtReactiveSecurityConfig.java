@@ -21,7 +21,7 @@ public class JwtReactiveSecurityConfig {
 
     @ConditionalOnMissingBean
     @Bean
-    public SecurityWebFilterChain securitygWebFilterChain(
+    public SecurityWebFilterChain securityWebFilterChain(
             ServerHttpSecurity http,
             JwtReactiveFilter jwtReactiveFilter) {
         return http
